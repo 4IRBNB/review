@@ -1,7 +1,7 @@
 ---
 name: "⛔️Bug"
 about: Bug 작업 사항을 입력하세요.
-title: "[⛔️BUG]"
+title: "[BUG]"
 labels: bug
 assignees: ''
 

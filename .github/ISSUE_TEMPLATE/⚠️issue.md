@@ -1,7 +1,7 @@
 ---
 name: "⚠️Issue"
 about: Issue 작업 사항을 입력하세요.
-title: "[⚠️ISSUE]"
+title: "[ISSUE]"
 labels: issue
 assignees: ''
 
