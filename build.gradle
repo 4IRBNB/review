@@ -1,74 +1,85 @@
 plugins {
-	id 'java'
-	id 'org.springframework.boot' version '3.4.4'
-	id 'io.spring.dependency-management' version '1.1.7'
+    id 'java'
+    id 'org.springframework.boot' version '3.4.4'
+    id 'io.spring.dependency-management' version '1.1.7'
 }
 
 group = 'com.fouribnb'
 version = '0.0.1-SNAPSHOT'
 
 java {
-	toolchain {
-		languageVersion = JavaLanguageVersion.of(17)
-	}
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
 }
 
 repositories {
-	mavenCentral()
+    mavenCentral()
+    maven {
+        url = uri("https://maven.pkg.github.com/4IRBNB/common-module")
+        credentials {
+            username = project.findProperty("gpr.user") // 이전처럼 키값은 gradle.properties 로 관리
+            password = project.findProperty("gpr.key") // user - 개인 사용자(닉네임) / key - 개인 토큰
+        }
+    }
 }
 
 ext {
-	set('springCloudVersion', "2024.0.1")
+    set('springCloudVersion', "2024.0.1")
 }
 
 dependencies {
 
-	// H2
-	runtimeOnly 'com.h2database:h2'
+    // 공통 모듈
+    implementation 'com.fourirbnb:common:1.1.0'
 
-	// swagger
+
+    // H2
+    runtimeOnly 'com.h2database:h2'
+
+    // swagger
 //	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.7.0'
 //	implementation 'com.fasterxml.jackson.module:jackson-module-parameter-names:2.15.0'
 //	implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.15.0'
 //	implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jdk8:2.15.0'
 
-	// zipkin
+    // zipkin
 //	implementation 'io.micrometer:micrometer-tracing-bridge-brave'
 //	implementation 'io.github.openfeign:feign-micrometer'
 //	implementation 'io.zipkin.reporter2:zipkin-reporter-brave'
 
-	// redis
+    // redis
 //	implementation 'org.springframework.session:spring-session-data-redis'
 //	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 
-	// security
+    // security
 //	implementation 'org.springframework.boot:spring-boot-starter-security'
 //	implementation 'io.jsonwebtoken:jjwt:0.12.6'
 
-	// postgresql
+    // postgresql
 //	implementation 'org.postgresql:postgresql:42.7.5'
 
-	// config
+    // config
 //	implementation 'org.springframework.cloud:spring-cloud-starter-config'
 //	implementation 'org.springframework.boot:spring-boot-starter-actuator'
 
-	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-	implementation 'org.springframework.boot:spring-boot-starter-validation'
-	implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
 //	implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
 //	implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
-	compileOnly 'org.projectlombok:lombok'
-	annotationProcessor 'org.projectlombok:lombok'
-	testImplementation 'org.springframework.boot:spring-boot-starter-test'
-	testImplementation 'org.springframework.security:spring-security-test'
-	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.springframework.security:spring-security-test'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
 dependencyManagement {
-	imports {
-		mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
-	}
+    imports {
+        mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
+    }
 }
 tasks.named('test') {
-	useJUnitPlatform()
+    useJUnitPlatform()
 }
