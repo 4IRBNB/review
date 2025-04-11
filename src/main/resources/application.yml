@@ -3,21 +3,22 @@ spring:
     name: review
   profiles:
     active: dev
-  config:
-    import: "configserver:http://localhost:18080"
+#  config:
+#    import: "configserver:http://localhost:18080"
+#    import: optional:file:.env[.properties]
 
 server:
   port: 19097
 
-eureka:
-  client:
-    service-url:
-      defaultZone: http://localhost:19090/eureka/
+#eureka:
+#  client:
+#    service-url:
+#      defaultZone: http://localhost:19090/eureka/
 
-message: "default message" # config server? ???? ?? ?
+#message: "default message" # config server? ???? ?? ?
 
-management:
-  endpoints:
-    web:
-      exposure:
-        include: refresh
+#management:
+#  endpoints:
+#    web:
+#      exposure:
+#        include: refresh
