@@ -20,13 +20,13 @@ public class ReviewDtoMapper {
   }
 
   // 내부 Dto -> 외부 Dto
-  public static ReviewResponse toResponse(ReviewInternalResponse response) {
+  public static ReviewResponse toResponse(ReviewInternalResponse internalResponse) {
     return new ReviewResponse(
-        response.reviewId(),
-        response.userId(),
-        response.lodgeId(),
-        response.content(),
-        response.rating()
+        internalResponse.reviewId(),
+        internalResponse.userId(),
+        internalResponse.lodgeId(),
+        internalResponse.content(),
+        internalResponse.rating()
     );
   }
 
