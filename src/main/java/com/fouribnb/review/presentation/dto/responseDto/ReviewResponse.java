@@ -9,5 +9,4 @@ public record ReviewResponse(
     String content,
     Long rating
 ) {
-
 }
