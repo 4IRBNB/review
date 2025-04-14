@@ -1,6 +1,7 @@
 package com.fouribnb.review.application.service;
 
 import com.fouribnb.review.application.dto.requestDto.CreateReviewInternalRequest;
+import com.fouribnb.review.application.dto.requestDto.UpdateReviewInternalRequest;
 import com.fouribnb.review.application.dto.responseDto.ReviewInternalResponse;
 import com.fouribnb.review.application.mapper.ReviewMapper;
 import com.fouribnb.review.domain.entity.Review;
@@ -31,5 +32,16 @@ public class ReviewServiceImpl implements ReviewService {
     return reviewRepository.getAllByLodgeId(lodgeId).stream()
         .map(ReviewMapper::toResponse)
         .collect(Collectors.toList());
+  }
+
+  @Override
+  public ReviewInternalResponse updateReview(UUID reviewId, UpdateReviewInternalRequest request) {
+
+    Review review = reviewRepository.findById(reviewId)
+        .orElseThrow(() -> new IllegalArgumentException("해당하는 리뷰가 없습니다."));
+
+    review.updateReview(request.content(), request.rating());
+
+    return ReviewMapper.toResponse(review);
   }
 }
