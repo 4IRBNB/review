@@ -6,11 +6,13 @@ import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.when;
 
 import com.fouribnb.review.application.dto.requestDto.CreateReviewInternalRequest;
+import com.fouribnb.review.application.dto.requestDto.UpdateReviewInternalRequest;
 import com.fouribnb.review.application.dto.responseDto.ReviewInternalResponse;
 import com.fouribnb.review.application.mapper.ReviewMapper;
 import com.fouribnb.review.domain.entity.Review;
 import com.fouribnb.review.domain.repository.ReviewRepository;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -45,6 +47,18 @@ class ReviewServiceImplTest {
         "숙소가 깔끔합니다!",
         5L
     );
+  }
+
+  private Review SavedReviewWithId(UUID reviewId) {
+    Review review = Review.builder()
+        .userId(request.userId())
+        .lodgeId(request.lodgeId())
+        .content(request.content())
+        .rating(request.rating())
+        .build();
+
+    ReflectionTestUtils.setField(review, "reviewId", reviewId);
+    return review;
   }
 
   @Nested
@@ -84,15 +98,8 @@ class ReviewServiceImplTest {
     @DisplayName("리뷰 목록 테스트 - 성공")
     void success() {
       // given
-      Review savedReview = Review.builder()
-          .userId(request.userId())
-          .lodgeId(request.lodgeId())
-          .content(request.content())
-          .rating(request.rating())
-          .build();
-
       UUID reviewId = UUID.randomUUID();
-      ReflectionTestUtils.setField(savedReview, "reviewId", reviewId);
+      Review savedReview = SavedReviewWithId(reviewId);
 
       ReviewInternalResponse internalResponse = new ReviewInternalResponse(
           savedReview.getReviewId(),
@@ -124,4 +131,30 @@ class ReviewServiceImplTest {
       }
     }
   }
+
+  @Nested
+  @DisplayName("리뷰 수정 테스트")
+  class updateReviews {
+
+    @Test
+    @DisplayName("리뷰 수정 테스트 - 성공")
+    void success() {
+      // given
+      UUID reviewId = UUID.randomUUID();
+      Review savedReview = SavedReviewWithId(reviewId);
+
+      UpdateReviewInternalRequest updateRequest = new UpdateReviewInternalRequest("리뷰 수정했어요.", 4L);
+
+      when(reviewRepository.findById(reviewId)).thenReturn(Optional.of(savedReview));
+
+      // when
+      ReviewInternalResponse result = reviewService.updateReview(reviewId, updateRequest);
+
+      // then
+      assertThat(result.reviewId()).isEqualTo(reviewId);
+      assertThat(result.content()).isEqualTo("리뷰 수정했어요.");
+      assertThat(result.rating()).isEqualTo(4L);
+    }
+  }
+
 }
