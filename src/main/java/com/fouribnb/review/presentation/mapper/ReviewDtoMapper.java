@@ -35,7 +35,8 @@ public class ReviewDtoMapper {
         internalResponse.userId(),
         internalResponse.lodgeId(),
         internalResponse.content(),
-        internalResponse.rating()
+        internalResponse.rating(),
+        internalResponse.createdAt()
     );
   }
 

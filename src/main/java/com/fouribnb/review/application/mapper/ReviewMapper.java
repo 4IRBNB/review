@@ -23,7 +23,8 @@ public class ReviewMapper {
         review.getUserId(),
         review.getLodgeId(),
         review.getContent(),
-        review.getRating()
+        review.getRating(),
+        review.getCreatedAt()
     );
   }
 }

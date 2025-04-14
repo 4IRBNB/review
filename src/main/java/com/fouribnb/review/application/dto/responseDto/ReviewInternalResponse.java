@@ -1,5 +1,6 @@
 package com.fouribnb.review.application.dto.responseDto;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 public record ReviewInternalResponse(
@@ -7,7 +8,8 @@ public record ReviewInternalResponse(
     Long userId,
     UUID lodgeId,
     String content,
-    Long rating
-) {
+    Long rating,
+    LocalDateTime createdAt
+    ) {
 
 }
