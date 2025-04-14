@@ -4,6 +4,8 @@ import com.fouribnb.review.application.dto.requestDto.CreateReviewInternalReques
 import com.fouribnb.review.application.dto.responseDto.ReviewInternalResponse;
 import com.fouribnb.review.presentation.dto.requestDto.CreateReviewRequest;
 import com.fouribnb.review.presentation.dto.responseDto.ReviewResponse;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class ReviewDtoMapper {
 
@@ -18,13 +20,19 @@ public class ReviewDtoMapper {
   }
 
   // 내부 Dto -> 외부 Dto
-  public static ReviewResponse toResponse(ReviewInternalResponse response) {
+  public static ReviewResponse toResponse(ReviewInternalResponse internalResponse) {
     return new ReviewResponse(
-        response.reviewId(),
-        response.userId(),
-        response.lodgeId(),
-        response.content(),
-        response.rating()
+        internalResponse.reviewId(),
+        internalResponse.userId(),
+        internalResponse.lodgeId(),
+        internalResponse.content(),
+        internalResponse.rating()
     );
+  }
+
+  public static List<ReviewResponse> toResponseList(List<ReviewInternalResponse> internalResponseList) {
+    return internalResponseList.stream()
+        .map(ReviewDtoMapper::toResponse)
+        .collect(Collectors.toList());
   }
 }

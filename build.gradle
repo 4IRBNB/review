@@ -30,9 +30,11 @@ ext {
 
 dependencies {
 
+    // mockito-inline
+    testImplementation group: 'org.mockito', name: 'mockito-inline', version: '4.9.0'
+
     // 공통 모듈
     implementation 'com.fourirbnb:common:1.1.0'
-
 
     // H2
     runtimeOnly 'com.h2database:h2'
