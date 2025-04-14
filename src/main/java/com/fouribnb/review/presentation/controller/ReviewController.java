@@ -23,7 +23,7 @@ public class ReviewController {
 
   private final ReviewService reviewService;
 
-
+  // [리뷰 작성]
   @PostMapping
   public ReviewResponse createReview(@RequestBody CreateReviewRequest request) {
 
@@ -34,6 +34,7 @@ public class ReviewController {
     return ReviewDtoMapper.toResponse(internalResponse);
   }
 
+  // [리뷰 목록 조회]
   @GetMapping("/lodge/{lodgeId}")
   public List<ReviewResponse> getReviewsByLodgeId(@PathVariable UUID lodgeId) {
 
