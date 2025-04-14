@@ -8,7 +8,6 @@ public record ReviewResponse(
     Long userId,
     UUID lodgeId,
     String content,
-    Long rating,
-    LocalDateTime createdAt
+    Long rating
 ) {
 }

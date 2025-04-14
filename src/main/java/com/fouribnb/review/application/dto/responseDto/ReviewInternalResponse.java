@@ -8,8 +8,7 @@ public record ReviewInternalResponse(
     Long userId,
     UUID lodgeId,
     String content,
-    Long rating,
-    LocalDateTime createdAt
+    Long rating
     ) {
 
 }
