@@ -6,6 +6,7 @@ import com.fouribnb.review.application.dto.responseDto.ReviewInternalResponse;
 import com.fouribnb.review.application.mapper.ReviewMapper;
 import com.fouribnb.review.domain.entity.Review;
 import com.fouribnb.review.domain.repository.ReviewRepository;
+import jakarta.transaction.Transactional;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -19,6 +20,7 @@ public class ReviewServiceImpl implements ReviewService {
   private final ReviewRepository reviewRepository;
 
   @Override
+  @Transactional
   public ReviewInternalResponse createReview(CreateReviewInternalRequest request) {
 
     Review review = ReviewMapper.toEntity(request);
@@ -35,6 +37,7 @@ public class ReviewServiceImpl implements ReviewService {
   }
 
   @Override
+  @Transactional
   public ReviewInternalResponse updateReview(UUID reviewId, UpdateReviewInternalRequest request) {
 
     Review review = reviewRepository.findById(reviewId)
