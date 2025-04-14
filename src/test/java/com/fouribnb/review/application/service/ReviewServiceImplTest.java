@@ -49,6 +49,18 @@ class ReviewServiceImplTest {
     );
   }
 
+  private Review SavedReviewWithId(UUID reviewId) {
+    Review review = Review.builder()
+        .userId(request.userId())
+        .lodgeId(request.lodgeId())
+        .content(request.content())
+        .rating(request.rating())
+        .build();
+
+    ReflectionTestUtils.setField(review, "reviewId", reviewId);
+    return review;
+  }
+
   @Nested
   @DisplayName("리뷰 작성 테스트")
   class createReview {
@@ -86,15 +98,8 @@ class ReviewServiceImplTest {
     @DisplayName("리뷰 목록 테스트 - 성공")
     void success() {
       // given
-      Review savedReview = Review.builder()
-          .userId(request.userId())
-          .lodgeId(request.lodgeId())
-          .content(request.content())
-          .rating(request.rating())
-          .build();
-
       UUID reviewId = UUID.randomUUID();
-      ReflectionTestUtils.setField(savedReview, "reviewId", reviewId);
+      Review savedReview = SavedReviewWithId(reviewId);
 
       ReviewInternalResponse internalResponse = new ReviewInternalResponse(
           savedReview.getReviewId(),
@@ -135,15 +140,8 @@ class ReviewServiceImplTest {
     @DisplayName("리뷰 수정 테스트 - 성공")
     void success() {
       // given
-      Review savedReview = Review.builder()
-          .userId(request.userId())
-          .lodgeId(request.lodgeId())
-          .content(request.content())
-          .rating(request.rating())
-          .build();
-
       UUID reviewId = UUID.randomUUID();
-      ReflectionTestUtils.setField(savedReview, "reviewId", reviewId);
+      Review savedReview = SavedReviewWithId(reviewId);
 
       UpdateReviewInternalRequest updateRequest = new UpdateReviewInternalRequest("리뷰 수정했어요.", 4L);
 
