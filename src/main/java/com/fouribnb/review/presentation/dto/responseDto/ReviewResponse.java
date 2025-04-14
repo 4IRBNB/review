@@ -1,6 +1,5 @@
 package com.fouribnb.review.presentation.dto.responseDto;
 
-import java.time.LocalDateTime;
 import java.util.UUID;
 
 public record ReviewResponse(
