@@ -43,4 +43,9 @@ public class Review {
     this.rating = rating;
   }
 
+  public void updateReview(String content, Long rating) {
+    this.content = content;
+    this.rating = rating;
+  }
+
 }
