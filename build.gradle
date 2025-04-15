@@ -34,7 +34,7 @@ dependencies {
     testImplementation group: 'org.mockito', name: 'mockito-inline', version: '4.9.0'
 
     // 공통 모듈
-    implementation 'com.fourirbnb:common:1.1.0'
+    implementation 'com.fourirbnb:common:1.2.3'
 
     // H2
     runtimeOnly 'com.h2database:h2'

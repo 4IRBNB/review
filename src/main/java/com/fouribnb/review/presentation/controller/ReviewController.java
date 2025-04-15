@@ -8,6 +8,7 @@ import com.fouribnb.review.presentation.dto.requestDto.CreateReviewRequest;
 import com.fouribnb.review.presentation.dto.requestDto.UpdateReviewRequest;
 import com.fouribnb.review.presentation.dto.responseDto.ReviewResponse;
 import com.fouribnb.review.presentation.mapper.ReviewDtoMapper;
+import com.fourirbnb.common.response.BaseResponse;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -24,36 +25,40 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class ReviewController {
 
-  private final ReviewService reviewService;
+    private final ReviewService reviewService;
 
-  // [리뷰 작성]
-  @PostMapping
-  public ReviewResponse createReview(@RequestBody CreateReviewRequest request) {
+    // [리뷰 작성]
+    @PostMapping
+    public BaseResponse<ReviewResponse> createReview(@RequestBody CreateReviewRequest request) {
 
-    CreateReviewInternalRequest internalRequest = ReviewDtoMapper.toCreateInternalDto(request);
+        CreateReviewInternalRequest internalRequest = ReviewDtoMapper.toCreateInternalDto(request);
 
-    ReviewInternalResponse internalResponse = reviewService.createReview(internalRequest);
+        ReviewInternalResponse internalResponse = reviewService.createReview(internalRequest);
 
-    return ReviewDtoMapper.toResponse(internalResponse);
-  }
+        return BaseResponse.SUCCESS(ReviewDtoMapper.toResponse(internalResponse), "리뷰작성 성공");
+    }
 
-  // [리뷰 목록 조회]
-  @GetMapping("/lodge/{lodgeId}")
-  public List<ReviewResponse> getReviewsByLodgeId(@PathVariable UUID lodgeId) {
+    // [리뷰 목록 조회]
+    @GetMapping("/lodge/{lodgeId}")
+    public BaseResponse<List<ReviewResponse>> getReviewsByLodgeId(@PathVariable UUID lodgeId) {
 
-    List<ReviewInternalResponse> internalResponse = reviewService.getReviewsByLodgeId(lodgeId);
+        List<ReviewInternalResponse> internalResponse = reviewService.getReviewsByLodgeId(lodgeId);
 
-    return ReviewDtoMapper.toResponseList(internalResponse);
-  }
+        return BaseResponse.SUCCESS(ReviewDtoMapper.toResponseList(internalResponse),
+            "리뷰 목록 조회 성공");
+    }
 
-  // [리뷰 수정]
-  @PutMapping("/{reviewId}")
-  public ReviewResponse updateReview(@PathVariable UUID reviewId, @RequestBody UpdateReviewRequest request){
+    // [리뷰 수정]
+    @PutMapping("/{reviewId}")
+    public BaseResponse<ReviewResponse> updateReview(@PathVariable UUID reviewId,
+        @RequestBody UpdateReviewRequest request) {
 
-    UpdateReviewInternalRequest internalRequest = ReviewDtoMapper.toUpdateInternalDto(request);
+        UpdateReviewInternalRequest internalRequest = ReviewDtoMapper.toUpdateInternalDto(request);
 
-    ReviewInternalResponse internalResponse = reviewService.updateReview(reviewId, internalRequest);
+        ReviewInternalResponse internalResponse = reviewService.updateReview(reviewId,
+            internalRequest);
 
-    return ReviewDtoMapper.toResponse(internalResponse);
-  }
+        return BaseResponse.SUCCESS(ReviewDtoMapper.toResponse(internalResponse),
+            "리뷰 수정 성공");
+    }
 }

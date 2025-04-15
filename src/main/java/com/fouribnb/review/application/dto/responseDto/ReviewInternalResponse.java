@@ -8,6 +8,6 @@ public record ReviewInternalResponse(
     UUID lodgeId,
     String content,
     Long rating
-) {
+    ) {
 
 }
