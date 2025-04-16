@@ -24,7 +24,7 @@ public class ReviewMapper {
             .lodgeId(review.getLodgeId())
             .content(review.getContent())
             .rating(review.getRating())
-            .deleteBy(review.getDeletedBy())
+            .deletedBy(review.getDeletedBy())
             .build();
         return internalResponse;
     }

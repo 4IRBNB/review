@@ -36,7 +36,7 @@ public class ReviewDtoMapper {
             .lodgeId(internalResponse.lodgeId())
             .content(internalResponse.content())
             .rating(internalResponse.rating())
-            .deletedBy(internalResponse.deleteBy())
+            .deletedBy(internalResponse.deletedBy())
             .build();
         return response;
     }

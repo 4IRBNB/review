@@ -10,7 +10,7 @@ public record ReviewInternalResponse(
     UUID lodgeId,
     String content,
     Long rating,
-    Long deleteBy
+    Long deletedBy
     ) {
 
 }
