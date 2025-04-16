@@ -13,9 +13,11 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Import;
 import org.springframework.stereotype.Service;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Import(JpaConfig.class)
@@ -55,9 +57,12 @@ public class ReviewServiceImpl implements ReviewService {
     @Override
     @Transactional
     public ReviewInternalResponse deleteReview(UUID reviewId) {
+
         Review review = reviewRepository.findById(reviewId)
             .orElseThrow(() -> new IllegalArgumentException("해당하는 리뷰가 없습니다."));
+        log.info("Before setDeleteReview, review: {}", review.getDeletedBy());
         review.setDeleted(10L, LocalDateTime.now());
+        log.info("After setDeleteReview, review: {}", review.getDeletedBy());
         return ReviewMapper.toResponse(review);
     }
 }
