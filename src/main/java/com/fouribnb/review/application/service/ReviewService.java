@@ -8,9 +8,11 @@ import java.util.UUID;
 
 public interface ReviewService {
 
-  ReviewInternalResponse createReview(CreateReviewInternalRequest request);
+    ReviewInternalResponse createReview(CreateReviewInternalRequest request);
 
-  List<ReviewInternalResponse> getReviewsByLodgeId(UUID lodgeId);
+    List<ReviewInternalResponse> getReviewsByLodgeId(UUID lodgeId);
 
-  ReviewInternalResponse updateReview(UUID reviewId, UpdateReviewInternalRequest request);
+    ReviewInternalResponse updateReview(UUID reviewId, UpdateReviewInternalRequest request);
+
+    ReviewInternalResponse deleteReview(UUID reviewId);
 }
