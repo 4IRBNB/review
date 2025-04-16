@@ -8,6 +8,7 @@ import com.fouribnb.review.domain.entity.Review;
 import com.fouribnb.review.domain.repository.ReviewRepository;
 import com.fourirbnb.common.config.JpaConfig;
 import jakarta.transaction.Transactional;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -56,10 +57,7 @@ public class ReviewServiceImpl implements ReviewService {
     public ReviewInternalResponse deleteReview(UUID reviewId) {
         Review review = reviewRepository.findById(reviewId)
             .orElseThrow(() -> new IllegalArgumentException("해당하는 리뷰가 없습니다."));
-
-        review.delete(4L);
-        reviewRepository.save(review);
-
+        review.setDeleted(10L, LocalDateTime.now());
         return ReviewMapper.toResponse(review);
     }
 }
