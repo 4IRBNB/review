@@ -69,6 +69,6 @@ public class ReviewController {
 
         ReviewInternalResponse internalResponse = reviewService.deleteReview(reviewId);
 
-        return BaseResponse.SUCCESS(ReviewDtoMapper.toResponse(internalResponse),"리뷰 삭제 성공");
+        return BaseResponse.SUCCESS(ReviewDtoMapper.toResponse(internalResponse),"리뷰 삭제 성공",204);
     }
 }
