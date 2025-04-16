@@ -11,37 +11,40 @@ import java.util.stream.Collectors;
 
 public class ReviewDtoMapper {
 
-  // 외부 Dto -> 내부 Dto
-  public static CreateReviewInternalRequest toCreateInternalDto(CreateReviewRequest request) {
-    return new CreateReviewInternalRequest(
-        request.userId(),
-        request.lodgeId(),
-        request.content(),
-        request.rating()
-    );
-  }
+    // 외부 Dto -> 내부 Dto
+    public static CreateReviewInternalRequest toCreateInternalDto(CreateReviewRequest request) {
+        return new CreateReviewInternalRequest(
+            request.userId(),
+            request.lodgeId(),
+            request.content(),
+            request.rating()
+        );
+    }
 
-  public static UpdateReviewInternalRequest toUpdateInternalDto(UpdateReviewRequest request) {
-    return new UpdateReviewInternalRequest(
-        request.content(),
-        request.rating()
-    );
-  }
+    public static UpdateReviewInternalRequest toUpdateInternalDto(UpdateReviewRequest request) {
+        return new UpdateReviewInternalRequest(
+            request.content(),
+            request.rating()
+        );
+    }
 
-  // 내부 Dto -> 외부 Dto
-  public static ReviewResponse toResponse(ReviewInternalResponse internalResponse) {
-    return new ReviewResponse(
-        internalResponse.reviewId(),
-        internalResponse.userId(),
-        internalResponse.lodgeId(),
-        internalResponse.content(),
-        internalResponse.rating()
-    );
-  }
+    // 내부 Dto -> 외부 Dto
+    public static ReviewResponse toResponse(ReviewInternalResponse internalResponse) {
+        ReviewResponse response = ReviewResponse.builder()
+            .reviewId(internalResponse.reviewId())
+            .userId(internalResponse.userId())
+            .lodgeId(internalResponse.lodgeId())
+            .content(internalResponse.content())
+            .rating(internalResponse.rating())
+            .deletedBy(internalResponse.deleteBy())
+            .build();
+        return response;
+    }
 
-  public static List<ReviewResponse> toResponseList(List<ReviewInternalResponse> internalResponseList) {
-    return internalResponseList.stream()
-        .map(ReviewDtoMapper::toResponse)
-        .collect(Collectors.toList());
-  }
+    public static List<ReviewResponse> toResponseList(
+        List<ReviewInternalResponse> internalResponseList) {
+        return internalResponseList.stream()
+            .map(ReviewDtoMapper::toResponse)
+            .collect(Collectors.toList());
+    }
 }
