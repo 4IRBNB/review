@@ -56,13 +56,12 @@ public class ReviewServiceImpl implements ReviewService {
 
     @Override
     @Transactional
-    public ReviewInternalResponse deleteReview(UUID reviewId) {
+    public void deleteReview(UUID reviewId) {
 
         Review review = reviewRepository.findById(reviewId)
             .orElseThrow(() -> new IllegalArgumentException("해당하는 리뷰가 없습니다."));
         log.info("Before setDeleteReview, review: {}", review.getDeletedBy());
         review.setDeleted(10L, LocalDateTime.now());
         log.info("After setDeleteReview, review: {}", review.getDeletedBy());
-        return ReviewMapper.toResponse(review);
     }
 }

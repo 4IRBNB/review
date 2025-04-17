@@ -12,6 +12,7 @@ import com.fourirbnb.common.response.BaseResponse;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -65,10 +66,9 @@ public class ReviewController {
 
     // [리뷰 삭제]
     @DeleteMapping("/{reviewId}")
-    public BaseResponse<ReviewResponse> deleteReview(@PathVariable UUID reviewId) {
+    public ResponseEntity<Object> deleteReview(@PathVariable UUID reviewId) {
 
-        ReviewInternalResponse internalResponse = reviewService.deleteReview(reviewId);
-
-        return BaseResponse.SUCCESS(ReviewDtoMapper.toResponse(internalResponse),"리뷰 삭제 성공",204);
+        reviewService.deleteReview(reviewId);
+        return ResponseEntity.noContent().build();
     }
 }
