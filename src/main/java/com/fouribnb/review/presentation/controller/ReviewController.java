@@ -9,6 +9,7 @@ import com.fouribnb.review.presentation.dto.requestDto.UpdateReviewRequest;
 import com.fouribnb.review.presentation.dto.responseDto.ReviewResponse;
 import com.fouribnb.review.presentation.mapper.ReviewDtoMapper;
 import com.fourirbnb.common.response.BaseResponse;
+import jakarta.validation.Valid;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -31,7 +32,7 @@ public class ReviewController {
 
     // [리뷰 작성]
     @PostMapping
-    public BaseResponse<ReviewResponse> createReview(@RequestBody CreateReviewRequest request) {
+    public BaseResponse<ReviewResponse> createReview(@Valid @RequestBody CreateReviewRequest request) {
 
         CreateReviewInternalRequest internalRequest = ReviewDtoMapper.toCreateInternalDto(request);
 
@@ -53,7 +54,7 @@ public class ReviewController {
     // [리뷰 수정]
     @PutMapping("/{reviewId}")
     public BaseResponse<ReviewResponse> updateReview(@PathVariable UUID reviewId,
-        @RequestBody UpdateReviewRequest request) {
+        @Valid @RequestBody UpdateReviewRequest request) {
 
         UpdateReviewInternalRequest internalRequest = ReviewDtoMapper.toUpdateInternalDto(request);
 
