@@ -10,7 +10,6 @@ import com.fouribnb.review.presentation.dto.responseDto.ReviewResponse;
 import com.fouribnb.review.presentation.mapper.ReviewDtoMapper;
 import com.fourirbnb.common.response.BaseResponse;
 import jakarta.validation.Valid;
-import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -49,11 +48,16 @@ public class ReviewController {
 
     // [리뷰 목록 조회]
     @GetMapping("/lodge/{lodgeId}")
-    public BaseResponse<List<ReviewResponse>> getReviewsByLodgeId(@PathVariable UUID lodgeId) {
+    public BaseResponse<Page<ReviewResponse>> getReviewsByLodgeId(@PathVariable UUID lodgeId,
+        @PageableDefault(
+            size = 10,
+            page = 0,
+            direction = Direction.ASC
+        ) Pageable pageable) {
 
-        List<ReviewInternalResponse> internalResponse = reviewService.getReviewsByLodgeId(lodgeId);
+        Page<ReviewInternalResponse> internalResponse = reviewService.getReviewsByLodgeId(lodgeId,pageable);
 
-        return BaseResponse.SUCCESS(ReviewDtoMapper.toResponseList(internalResponse),
+        return BaseResponse.SUCCESS(ReviewDtoMapper.toResponsePage(internalResponse),
             "리뷰 목록 조회 성공");
     }
 

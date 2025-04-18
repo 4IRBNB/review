@@ -2,7 +2,6 @@ package com.fouribnb.review.infrastructure.jpa;
 
 import com.fouribnb.review.domain.entity.Review;
 import com.fouribnb.review.domain.repository.ReviewRepository;
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -22,8 +21,8 @@ public class ReviewJpaRepositoryAdapter implements ReviewRepository {
     }
 
     @Override
-    public List<Review> getAllByLodgeId(UUID lodgeId) {
-        return reviewJpaRepository.getAllByLodgeId(lodgeId);
+    public Page<Review> getAllByLodgeId(UUID lodgeId, Pageable pageable) {
+        return reviewJpaRepository.getAllByLodgeId(lodgeId, pageable);
     }
 
     @Override

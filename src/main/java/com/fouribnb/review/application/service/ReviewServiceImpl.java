@@ -9,9 +9,7 @@ import com.fouribnb.review.domain.repository.ReviewRepository;
 import com.fourirbnb.common.config.JpaConfig;
 import jakarta.transaction.Transactional;
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Import;
@@ -38,10 +36,11 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
     @Override
-    public List<ReviewInternalResponse> getReviewsByLodgeId(UUID lodgeId) {
-        return reviewRepository.getAllByLodgeId(lodgeId).stream()
-            .map(ReviewMapper::toResponse)
-            .collect(Collectors.toList());
+    public Page<ReviewInternalResponse> getReviewsByLodgeId(UUID lodgeId,Pageable pageable) {
+        Page<Review> reviewPage = reviewRepository.getAllByLodgeId(lodgeId,pageable);
+        Page<ReviewInternalResponse> internalResponsePage = ReviewMapper.toResponsePage(reviewPage);
+
+        return internalResponsePage;
     }
 
     @Override
