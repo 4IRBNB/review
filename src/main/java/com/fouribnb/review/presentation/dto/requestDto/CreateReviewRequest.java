@@ -7,8 +7,6 @@ import java.util.UUID;
 
 
 public record CreateReviewRequest(
-    @NotNull(message = "유저 아이디는 필수 사항 입니다.")
-    Long userId,
 
     @NotNull(message = "숙소 아이디는 필수 사항 입니다.")
     UUID lodgeId,
