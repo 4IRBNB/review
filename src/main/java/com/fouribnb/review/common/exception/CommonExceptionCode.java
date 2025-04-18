@@ -8,7 +8,8 @@ import org.springframework.http.HttpStatus;
 @RequiredArgsConstructor
 public enum CommonExceptionCode implements ExceptionCode {
 
-    REVIEW_NOT_FOUND(HttpStatus.NOT_FOUND, "리뷰가 존재하지 않습니다.")
+    REVIEW_NOT_FOUND(HttpStatus.NOT_FOUND, "리뷰가 존재하지 않습니다."),
+    FORBIDDEN(HttpStatus.FORBIDDEN,"권한이 없는 유저 입니다.")
     ;
 
     private final HttpStatus httpStatus;

@@ -11,6 +11,7 @@ import com.fouribnb.review.domain.repository.ReviewRepository;
 import com.fourirbnb.common.config.JpaConfig;
 import jakarta.transaction.Transactional;
 import java.time.LocalDateTime;
+import java.util.Objects;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -72,9 +73,11 @@ public class ReviewServiceImpl implements ReviewService {
         Review review = reviewRepository.findById(reviewId)
             .orElseThrow(() -> new CustomException(CommonExceptionCode.REVIEW_NOT_FOUND));
 
-        // TODO : 리뷰를 작성한 유저만 수정 가능
-
-        review.updateReview(request.content(), request.rating());
+        if (Objects.equals(review.getUserId(), request.userId())) {
+            review.updateReview(request.content(), request.rating());
+        } else {
+            throw new CustomException(CommonExceptionCode.FORBIDDEN);
+        }
 
         return ReviewMapper.toResponse(review);
     }
@@ -86,10 +89,13 @@ public class ReviewServiceImpl implements ReviewService {
         Review review = reviewRepository.findById(reviewId)
             .orElseThrow(() -> new CustomException(CommonExceptionCode.REVIEW_NOT_FOUND));
 
-        // TODO : 리뷰를 작성한 유저만 삭제 가능
-
         // TODO : 로그인한 유저 id 를 deletedBy로 설정하기
-        review.setDeleted(10L, LocalDateTime.now());
+        if (Objects.equals(review.getUserId(), userId)) {
+            review.setDeleted(10L, LocalDateTime.now());
+        } else {
+            throw new CustomException(CommonExceptionCode.FORBIDDEN);
+        }
+
         log.info("After setDeleteReview, review: {}", review.getDeletedBy());
     }
 }
