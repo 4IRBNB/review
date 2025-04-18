@@ -8,6 +8,7 @@ import com.fouribnb.review.presentation.dto.requestDto.UpdateReviewRequest;
 import com.fouribnb.review.presentation.dto.responseDto.ReviewResponse;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.springframework.data.domain.Page;
 
 public class ReviewDtoMapper {
 
@@ -47,4 +48,18 @@ public class ReviewDtoMapper {
             .map(ReviewDtoMapper::toResponse)
             .collect(Collectors.toList());
     }
+
+    public static Page<ReviewResponse> toResponsePage(
+        Page<ReviewInternalResponse> internalResponsePage) {
+        Page<ReviewResponse> ResponsePage = internalResponsePage.map(r -> ReviewResponse.builder()
+            .reviewId(r.reviewId())
+            .lodgeId(r.lodgeId())
+            .userId(r.userId())
+            .content(r.content())
+            .rating(r.rating())
+            .deletedBy(r.deletedBy())
+            .build());
+        return ResponsePage;
+    }
+
 }

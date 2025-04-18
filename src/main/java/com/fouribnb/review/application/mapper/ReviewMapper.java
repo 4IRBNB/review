@@ -3,6 +3,7 @@ package com.fouribnb.review.application.mapper;
 import com.fouribnb.review.application.dto.requestDto.CreateReviewInternalRequest;
 import com.fouribnb.review.application.dto.responseDto.ReviewInternalResponse;
 import com.fouribnb.review.domain.entity.Review;
+import org.springframework.data.domain.Page;
 
 public class ReviewMapper {
 
@@ -28,4 +29,18 @@ public class ReviewMapper {
             .build();
         return internalResponse;
     }
+
+    public static Page<ReviewInternalResponse> toResponsePage(Page<Review> review) {
+        Page<ReviewInternalResponse> internalResponsePage = review.map(r -> ReviewInternalResponse.builder()
+            .reviewId(r.getReviewId())
+            .lodgeId(r.getLodgeId())
+            .userId(r.getUserId())
+            .content(r.getContent())
+            .rating(r.getRating())
+            .deletedBy(r.getDeletedBy())
+            .build());
+        return internalResponsePage;
+    }
+
+
 }
