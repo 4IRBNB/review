@@ -94,10 +94,11 @@ public class ReviewController {
     }
 
     // [리뷰 삭제]
+    // TODO : 로그인한 사용자가 CUSTOMER 권한을 가져야 리뷰삭제 가능
     @DeleteMapping("/{reviewId}")
-    public BaseResponse<Object> deleteReview(@PathVariable UUID reviewId) {
+    public BaseResponse<Object> deleteReview(@PathVariable UUID reviewId, @RequestHeader Long userId) {
 
-        reviewService.deleteReview(reviewId);
+        reviewService.deleteReview(reviewId,userId);
         return BaseResponse.FAIL("리뷰 삭제 성공", 204);
     }
 }

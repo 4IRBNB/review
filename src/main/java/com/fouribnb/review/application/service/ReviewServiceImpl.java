@@ -81,10 +81,12 @@ public class ReviewServiceImpl implements ReviewService {
 
     @Override
     @Transactional
-    public void deleteReview(UUID reviewId) {
+    public void deleteReview(UUID reviewId, Long userId) {
 
         Review review = reviewRepository.findById(reviewId)
             .orElseThrow(() -> new CustomException(CommonExceptionCode.REVIEW_NOT_FOUND));
+
+        // TODO : 리뷰를 작성한 유저만 삭제 가능
 
         // TODO : 로그인한 유저 id 를 deletedBy로 설정하기
         review.setDeleted(10L, LocalDateTime.now());
