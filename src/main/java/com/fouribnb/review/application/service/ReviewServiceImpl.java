@@ -89,9 +89,8 @@ public class ReviewServiceImpl implements ReviewService {
         Review review = reviewRepository.findById(reviewId)
             .orElseThrow(() -> new CustomException(CommonExceptionCode.REVIEW_NOT_FOUND));
 
-        // TODO : 로그인한 유저 id 를 deletedBy로 설정하기
         if (Objects.equals(review.getUserId(), userId)) {
-            review.setDeleted(10L, LocalDateTime.now());
+            review.setDeleted(userId, LocalDateTime.now());
         } else {
             throw new CustomException(CommonExceptionCode.FORBIDDEN);
         }
