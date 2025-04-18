@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
 @Repository
@@ -25,8 +27,8 @@ public class ReviewJpaRepositoryAdapter implements ReviewRepository {
     }
 
     @Override
-    public List<Review> getAllByUserId(Long userId) {
-        return reviewJpaRepository.getAllByUserId(userId);
+    public Page<Review> getAllByUserId(Long userId, Pageable pageable) {
+        return reviewJpaRepository.getAllByUserId(userId, pageable);
     }
 
     @Override

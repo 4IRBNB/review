@@ -5,6 +5,8 @@ import com.fouribnb.review.application.dto.requestDto.UpdateReviewInternalReques
 import com.fouribnb.review.application.dto.responseDto.ReviewInternalResponse;
 import java.util.List;
 import java.util.UUID;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 public interface ReviewService {
 
@@ -12,7 +14,7 @@ public interface ReviewService {
 
     List<ReviewInternalResponse> getReviewsByLodgeId(UUID lodgeId);
 
-    List<ReviewInternalResponse> getAllByUserId(Long userId);
+    Page<ReviewInternalResponse> getAllByUserId(Long userId,Pageable pageable);
 
     ReviewInternalResponse updateReview(UUID reviewId, UpdateReviewInternalRequest request);
 
