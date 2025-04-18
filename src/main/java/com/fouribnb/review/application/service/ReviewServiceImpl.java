@@ -43,6 +43,13 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
     @Override
+    public List<ReviewInternalResponse> getAllByUserId(Long userId) {
+        return reviewRepository.getAllByUserId(userId).stream()
+            .map(ReviewMapper::toResponse)
+            .collect(Collectors.toList());
+    }
+
+    @Override
     @Transactional
     public ReviewInternalResponse updateReview(UUID reviewId, UpdateReviewInternalRequest request) {
 

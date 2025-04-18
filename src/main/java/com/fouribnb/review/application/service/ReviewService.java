@@ -12,7 +12,10 @@ public interface ReviewService {
 
     List<ReviewInternalResponse> getReviewsByLodgeId(UUID lodgeId);
 
+    List<ReviewInternalResponse> getAllByUserId(Long userId);
+
     ReviewInternalResponse updateReview(UUID reviewId, UpdateReviewInternalRequest request);
 
     void deleteReview(UUID reviewId);
+
 }

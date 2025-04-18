@@ -3,6 +3,7 @@ package com.fouribnb.review.presentation.controller;
 import com.fouribnb.review.application.dto.requestDto.CreateReviewInternalRequest;
 import com.fouribnb.review.application.dto.requestDto.UpdateReviewInternalRequest;
 import com.fouribnb.review.application.dto.responseDto.ReviewInternalResponse;
+import com.fouribnb.review.application.mapper.ReviewMapper;
 import com.fouribnb.review.application.service.ReviewService;
 import com.fouribnb.review.presentation.dto.requestDto.CreateReviewRequest;
 import com.fouribnb.review.presentation.dto.requestDto.UpdateReviewRequest;
@@ -20,7 +21,9 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -32,7 +35,8 @@ public class ReviewController {
 
     // [리뷰 작성]
     @PostMapping
-    public BaseResponse<ReviewResponse> createReview(@Valid @RequestBody CreateReviewRequest request) {
+    public BaseResponse<ReviewResponse> createReview(
+        @Valid @RequestBody CreateReviewRequest request) {
 
         CreateReviewInternalRequest internalRequest = ReviewDtoMapper.toCreateInternalDto(request);
 
@@ -50,6 +54,15 @@ public class ReviewController {
         return BaseResponse.SUCCESS(ReviewDtoMapper.toResponseList(internalResponse),
             "리뷰 목록 조회 성공");
     }
+
+    // [내 리뷰 조회]
+    @GetMapping("/me")
+    public BaseResponse<List<ReviewResponse>> getReviewsByUser(@RequestHeader Long userId) {
+        List<ReviewInternalResponse> internalResponseList = reviewService.getAllByUserId(userId);
+        return BaseResponse.SUCCESS(ReviewDtoMapper.toResponseList(internalResponseList),
+            "내 리뷰 조회");
+    }
+
 
     // [리뷰 수정]
     @PutMapping("/{reviewId}")
