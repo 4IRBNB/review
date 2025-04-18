@@ -6,24 +6,26 @@ import com.fouribnb.review.domain.entity.Review;
 
 public class ReviewMapper {
 
-  // 내부 Dto -> Entity
-  public static Review toEntity(CreateReviewInternalRequest request) {
-    return new Review(
-        request.userId(),
-        request.lodgeId(),
-        request.content(),
-        request.rating()
-    );
-  }
+    // 내부 Dto -> Entity
+    public static Review toEntity(CreateReviewInternalRequest request) {
+        return new Review(
+            request.userId(),
+            request.lodgeId(),
+            request.content(),
+            request.rating()
+        );
+    }
 
-  // Entity -> 내부 Dto
-  public static ReviewInternalResponse toResponse(Review review){
-    return new ReviewInternalResponse(
-        review.getReviewId(),
-        review.getUserId(),
-        review.getLodgeId(),
-        review.getContent(),
-        review.getRating()
-    );
-  }
+    // Entity -> 내부 Dto
+    public static ReviewInternalResponse toResponse(Review review) {
+        ReviewInternalResponse internalResponse = ReviewInternalResponse.builder()
+            .reviewId(review.getReviewId())
+            .userId(review.getUserId())
+            .lodgeId(review.getLodgeId())
+            .content(review.getContent())
+            .rating(review.getRating())
+            .deletedBy(review.getDeletedBy())
+            .build();
+        return internalResponse;
+    }
 }

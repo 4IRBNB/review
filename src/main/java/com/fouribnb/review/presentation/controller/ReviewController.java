@@ -9,9 +9,12 @@ import com.fouribnb.review.presentation.dto.requestDto.UpdateReviewRequest;
 import com.fouribnb.review.presentation.dto.responseDto.ReviewResponse;
 import com.fouribnb.review.presentation.mapper.ReviewDtoMapper;
 import com.fourirbnb.common.response.BaseResponse;
+import jakarta.validation.Valid;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -29,7 +32,7 @@ public class ReviewController {
 
     // [리뷰 작성]
     @PostMapping
-    public BaseResponse<ReviewResponse> createReview(@RequestBody CreateReviewRequest request) {
+    public BaseResponse<ReviewResponse> createReview(@Valid @RequestBody CreateReviewRequest request) {
 
         CreateReviewInternalRequest internalRequest = ReviewDtoMapper.toCreateInternalDto(request);
 
@@ -51,7 +54,7 @@ public class ReviewController {
     // [리뷰 수정]
     @PutMapping("/{reviewId}")
     public BaseResponse<ReviewResponse> updateReview(@PathVariable UUID reviewId,
-        @RequestBody UpdateReviewRequest request) {
+        @Valid @RequestBody UpdateReviewRequest request) {
 
         UpdateReviewInternalRequest internalRequest = ReviewDtoMapper.toUpdateInternalDto(request);
 
@@ -60,5 +63,13 @@ public class ReviewController {
 
         return BaseResponse.SUCCESS(ReviewDtoMapper.toResponse(internalResponse),
             "리뷰 수정 성공");
+    }
+
+    // [리뷰 삭제]
+    @DeleteMapping("/{reviewId}")
+    public ResponseEntity<Object> deleteReview(@PathVariable UUID reviewId) {
+
+        reviewService.deleteReview(reviewId);
+        return ResponseEntity.noContent().build();
     }
 }
