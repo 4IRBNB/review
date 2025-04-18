@@ -16,7 +16,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.web.PageableDefault;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -80,11 +79,12 @@ public class ReviewController {
 
 
     // [리뷰 수정]
+    // TODO : 로그인한 사용자가 CUSTOMER 권한을 가져야 리뷰수정 가능
     @PutMapping("/{reviewId}")
     public BaseResponse<ReviewResponse> updateReview(@PathVariable UUID reviewId,
-        @Valid @RequestBody UpdateReviewRequest request) {
+        @Valid @RequestBody UpdateReviewRequest request, @RequestHeader Long userId) {
 
-        UpdateReviewInternalRequest internalRequest = ReviewDtoMapper.toUpdateInternalDto(request);
+        UpdateReviewInternalRequest internalRequest = ReviewDtoMapper.toUpdateInternalDto(request, userId);
 
         ReviewInternalResponse internalResponse = reviewService.updateReview(reviewId,
             internalRequest);

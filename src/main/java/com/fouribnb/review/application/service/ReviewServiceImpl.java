@@ -72,6 +72,8 @@ public class ReviewServiceImpl implements ReviewService {
         Review review = reviewRepository.findById(reviewId)
             .orElseThrow(() -> new CustomException(CommonExceptionCode.REVIEW_NOT_FOUND));
 
+        // TODO : 리뷰를 작성한 유저만 수정 가능
+
         review.updateReview(request.content(), request.rating());
 
         return ReviewMapper.toResponse(review);

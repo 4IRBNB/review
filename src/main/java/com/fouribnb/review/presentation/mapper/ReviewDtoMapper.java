@@ -22,8 +22,9 @@ public class ReviewDtoMapper {
         );
     }
 
-    public static UpdateReviewInternalRequest toUpdateInternalDto(UpdateReviewRequest request) {
+    public static UpdateReviewInternalRequest toUpdateInternalDto(UpdateReviewRequest request, Long userId) {
         return new UpdateReviewInternalRequest(
+            userId,
             request.content(),
             request.rating()
         );
