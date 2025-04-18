@@ -32,6 +32,9 @@ public class ReviewServiceImpl implements ReviewService {
     public ReviewInternalResponse createReview(CreateReviewInternalRequest request) {
 
         Review review = ReviewMapper.toEntity(request);
+
+        // TODO : 리뷰 서비스와 Feign Client 통신 - 해당 숙소에 사용 내역이 있는 유저만 작성가능
+
         Review saved = reviewRepository.save(review);
 
         return ReviewMapper.toResponse(saved);

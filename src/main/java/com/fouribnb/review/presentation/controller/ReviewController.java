@@ -35,11 +35,12 @@ public class ReviewController {
     private final ReviewService reviewService;
 
     // [리뷰 작성]
+    // TODO : 로그인한 사용자가 CUSTOMER 권한을 가져야 리뷰작성 가능
     @PostMapping
     public BaseResponse<ReviewResponse> createReview(
-        @Valid @RequestBody CreateReviewRequest request) {
+        @Valid @RequestBody CreateReviewRequest request, @RequestHeader Long userId) {
 
-        CreateReviewInternalRequest internalRequest = ReviewDtoMapper.toCreateInternalDto(request);
+        CreateReviewInternalRequest internalRequest = ReviewDtoMapper.toCreateInternalDto(request, userId);
 
         ReviewInternalResponse internalResponse = reviewService.createReview(internalRequest);
 
@@ -55,7 +56,8 @@ public class ReviewController {
             direction = Direction.ASC
         ) Pageable pageable) {
 
-        Page<ReviewInternalResponse> internalResponse = reviewService.getReviewsByLodgeId(lodgeId,pageable);
+        Page<ReviewInternalResponse> internalResponse = reviewService.getReviewsByLodgeId(lodgeId,
+            pageable);
 
         return BaseResponse.SUCCESS(ReviewDtoMapper.toResponsePage(internalResponse),
             "리뷰 목록 조회 성공");
