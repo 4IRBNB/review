@@ -93,9 +93,9 @@ public class ReviewController {
 
     // [리뷰 삭제]
     @DeleteMapping("/{reviewId}")
-    public ResponseEntity<Object> deleteReview(@PathVariable UUID reviewId) {
+    public BaseResponse<Object> deleteReview(@PathVariable UUID reviewId) {
 
         reviewService.deleteReview(reviewId);
-        return ResponseEntity.noContent().build();
+        return BaseResponse.FAIL("리뷰 삭제 성공", 204);
     }
 }
