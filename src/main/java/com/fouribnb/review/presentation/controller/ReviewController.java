@@ -1,13 +1,15 @@
 package com.fouribnb.review.presentation.controller;
 
-import com.fasterxml.jackson.databind.ser.Serializers.Base;
 import com.fouribnb.review.application.dto.requestDto.CreateReviewInternalRequest;
 import com.fouribnb.review.application.dto.requestDto.UpdateReviewInternalRequest;
+import com.fouribnb.review.application.dto.responseDto.RedisResponse;
 import com.fouribnb.review.application.dto.responseDto.ReviewInternalResponse;
 import com.fouribnb.review.application.service.ReviewService;
 import com.fouribnb.review.presentation.dto.requestDto.CreateReviewRequest;
 import com.fouribnb.review.presentation.dto.requestDto.UpdateReviewRequest;
+import com.fouribnb.review.presentation.dto.responseDto.RatingResponse;
 import com.fouribnb.review.presentation.dto.responseDto.ReviewResponse;
+import com.fouribnb.review.presentation.mapper.RedisDtoMapper;
 import com.fouribnb.review.presentation.mapper.ReviewDtoMapper;
 import com.fourirbnb.common.response.BaseResponse;
 import jakarta.validation.Valid;
@@ -40,7 +42,8 @@ public class ReviewController {
     public BaseResponse<ReviewResponse> createReview(
         @Valid @RequestBody CreateReviewRequest request, @RequestHeader Long userId) {
 
-        CreateReviewInternalRequest internalRequest = ReviewDtoMapper.toCreateInternalDto(request, userId);
+        CreateReviewInternalRequest internalRequest = ReviewDtoMapper.toCreateInternalDto(request,
+            userId);
 
         ReviewInternalResponse internalResponse = reviewService.createReview(internalRequest);
 
@@ -84,7 +87,8 @@ public class ReviewController {
     public BaseResponse<ReviewResponse> updateReview(@PathVariable UUID reviewId,
         @Valid @RequestBody UpdateReviewRequest request, @RequestHeader Long userId) {
 
-        UpdateReviewInternalRequest internalRequest = ReviewDtoMapper.toUpdateInternalDto(request, userId);
+        UpdateReviewInternalRequest internalRequest = ReviewDtoMapper.toUpdateInternalDto(request,
+            userId);
 
         ReviewInternalResponse internalResponse = reviewService.updateReview(reviewId,
             internalRequest);
@@ -96,10 +100,20 @@ public class ReviewController {
     // [리뷰 삭제]
     // TODO : 로그인한 사용자가 CUSTOMER 권한을 가져야 리뷰삭제 가능
     @DeleteMapping("/{reviewId}")
-    public BaseResponse<Object> deleteReview(@PathVariable UUID reviewId, @RequestHeader Long userId) {
+    public BaseResponse<Object> deleteReview(@PathVariable UUID reviewId,
+        @RequestHeader Long userId) {
 
-        reviewService.deleteReview(reviewId,userId);
+        reviewService.deleteReview(reviewId, userId);
 
-        return BaseResponse.SUCCESS(null,"리뷰 삭제 성공", 204);
+        return BaseResponse.SUCCESS(null, "리뷰 삭제 성공", 204);
+    }
+
+    // [별점 통계]
+    @GetMapping("/lodge/{lodgeId}/statistics")
+    public BaseResponse<RatingResponse> ratingStatistics(@PathVariable UUID lodgeId) {
+
+        RedisResponse redisResponse = reviewService.ratingStatistics(lodgeId);
+
+        return BaseResponse.SUCCESS(RedisDtoMapper.toRatingResponse(redisResponse), "별점 통계 성공");
     }
 }
