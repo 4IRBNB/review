@@ -113,14 +113,14 @@ public class ReviewServiceImpl implements ReviewService {
         log.info("별점 , review: {}", internalResponseList);
 
         // 가져온 데이터 Redis 에 저장
-        String redisKey1 = "ratingCount";
+        String redisKey1 = "ratingCount:"+lodgeId;
         for (RatingInternalResponse internalResponse : internalResponseList) {
             redisUtils.setRatingCount(redisKey1, internalResponse.rating().toString(),
                 internalResponse.count().toString());
         }
 
         // 총 별점, 총 리뷰 수 Redis 에 저장
-        String redisKey2 = "totalScore";
+        String redisKey2 = "totalScore:"+lodgeId;
         Long totalScore = 0L;
         for (int i = 0; i < internalResponseList.size(); i++) {
             totalScore += (internalResponseList.get(i).count() * internalResponseList.get(i)
@@ -129,7 +129,7 @@ public class ReviewServiceImpl implements ReviewService {
         log.info("totalScore: {}", totalScore);
         redisUtils.setData(redisKey2, totalScore.toString());
 
-        String redisKey3 = "totalReview";
+        String redisKey3 = "totalReview:"+lodgeId;
         Long totalReview = 0L;
         for (int i = 0; i < internalResponseList.size(); i++) {
             totalReview += internalResponseList.get(i).count();
