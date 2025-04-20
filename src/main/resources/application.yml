@@ -3,9 +3,9 @@ spring:
     name: review
   profiles:
     active: dev
-  #  config:
+  config:
+    import: optional:file:.env[.properties]
   #    import: "configserver:http://localhost:18080"
-  #    import: optional:file:.env[.properties]
   datasource:
     url: jdbc:h2:~/test
     username: sa
@@ -21,6 +21,10 @@ spring:
       hibernate:
         show_sql: true
         format_sql: true
+  data:
+    redis:
+      host: localhost
+      port: ${REDIS_BINDING_PORT}
 server:
   port: 19097
 
