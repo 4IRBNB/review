@@ -13,17 +13,18 @@ import org.springframework.data.domain.Page;
 public class ReviewDtoMapper {
 
     // 외부 Dto -> 내부 Dto
-    public static CreateReviewInternalRequest toCreateInternalDto(CreateReviewRequest request) {
+    public static CreateReviewInternalRequest toCreateInternalDto(CreateReviewRequest request, Long userId) {
         return new CreateReviewInternalRequest(
-            request.userId(),
+            userId,
             request.lodgeId(),
             request.content(),
             request.rating()
         );
     }
 
-    public static UpdateReviewInternalRequest toUpdateInternalDto(UpdateReviewRequest request) {
+    public static UpdateReviewInternalRequest toUpdateInternalDto(UpdateReviewRequest request, Long userId) {
         return new UpdateReviewInternalRequest(
+            userId,
             request.content(),
             request.rating()
         );
@@ -51,7 +52,7 @@ public class ReviewDtoMapper {
 
     public static Page<ReviewResponse> toResponsePage(
         Page<ReviewInternalResponse> internalResponsePage) {
-        Page<ReviewResponse> ResponsePage = internalResponsePage.map(r -> ReviewResponse.builder()
+        Page<ReviewResponse> responsePage = internalResponsePage.map(r -> ReviewResponse.builder()
             .reviewId(r.reviewId())
             .lodgeId(r.lodgeId())
             .userId(r.userId())
@@ -59,7 +60,7 @@ public class ReviewDtoMapper {
             .rating(r.rating())
             .deletedBy(r.deletedBy())
             .build());
-        return ResponsePage;
+        return responsePage;
     }
 
 }

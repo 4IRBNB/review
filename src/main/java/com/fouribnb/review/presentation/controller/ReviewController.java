@@ -1,5 +1,6 @@
 package com.fouribnb.review.presentation.controller;
 
+import com.fasterxml.jackson.databind.ser.Serializers.Base;
 import com.fouribnb.review.application.dto.requestDto.CreateReviewInternalRequest;
 import com.fouribnb.review.application.dto.requestDto.UpdateReviewInternalRequest;
 import com.fouribnb.review.application.dto.responseDto.ReviewInternalResponse;
@@ -16,7 +17,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.web.PageableDefault;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -35,11 +35,12 @@ public class ReviewController {
     private final ReviewService reviewService;
 
     // [리뷰 작성]
+    // TODO : 로그인한 사용자가 CUSTOMER 권한을 가져야 리뷰작성 가능
     @PostMapping
     public BaseResponse<ReviewResponse> createReview(
-        @Valid @RequestBody CreateReviewRequest request) {
+        @Valid @RequestBody CreateReviewRequest request, @RequestHeader Long userId) {
 
-        CreateReviewInternalRequest internalRequest = ReviewDtoMapper.toCreateInternalDto(request);
+        CreateReviewInternalRequest internalRequest = ReviewDtoMapper.toCreateInternalDto(request, userId);
 
         ReviewInternalResponse internalResponse = reviewService.createReview(internalRequest);
 
@@ -55,7 +56,8 @@ public class ReviewController {
             direction = Direction.ASC
         ) Pageable pageable) {
 
-        Page<ReviewInternalResponse> internalResponse = reviewService.getReviewsByLodgeId(lodgeId,pageable);
+        Page<ReviewInternalResponse> internalResponse = reviewService.getReviewsByLodgeId(lodgeId,
+            pageable);
 
         return BaseResponse.SUCCESS(ReviewDtoMapper.toResponsePage(internalResponse),
             "리뷰 목록 조회 성공");
@@ -66,8 +68,7 @@ public class ReviewController {
     public BaseResponse<Page<ReviewResponse>> getReviewsByUser(@RequestHeader Long userId,
         @PageableDefault(
             size = 10,
-            page = 0,
-            direction = Direction.ASC
+            page = 0
         ) Pageable pageable) {
         Page<ReviewInternalResponse> internalResponsePage = reviewService.getAllByUserId(userId,
             pageable);
@@ -78,11 +79,12 @@ public class ReviewController {
 
 
     // [리뷰 수정]
+    // TODO : 로그인한 사용자가 CUSTOMER 권한을 가져야 리뷰수정 가능
     @PutMapping("/{reviewId}")
     public BaseResponse<ReviewResponse> updateReview(@PathVariable UUID reviewId,
-        @Valid @RequestBody UpdateReviewRequest request) {
+        @Valid @RequestBody UpdateReviewRequest request, @RequestHeader Long userId) {
 
-        UpdateReviewInternalRequest internalRequest = ReviewDtoMapper.toUpdateInternalDto(request);
+        UpdateReviewInternalRequest internalRequest = ReviewDtoMapper.toUpdateInternalDto(request, userId);
 
         ReviewInternalResponse internalResponse = reviewService.updateReview(reviewId,
             internalRequest);
@@ -92,10 +94,12 @@ public class ReviewController {
     }
 
     // [리뷰 삭제]
+    // TODO : 로그인한 사용자가 CUSTOMER 권한을 가져야 리뷰삭제 가능
     @DeleteMapping("/{reviewId}")
-    public ResponseEntity<Object> deleteReview(@PathVariable UUID reviewId) {
+    public BaseResponse<Object> deleteReview(@PathVariable UUID reviewId, @RequestHeader Long userId) {
 
-        reviewService.deleteReview(reviewId);
-        return ResponseEntity.noContent().build();
+        reviewService.deleteReview(reviewId,userId);
+
+        return BaseResponse.SUCCESS(null,"리뷰 삭제 성공", 204);
     }
 }
