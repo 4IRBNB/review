@@ -5,7 +5,7 @@ import java.util.Map;
 
 public class RedisMapper {
     // Redis -> Redis Response
-    public static RedisResponse toRedisResponse(Map<?,?> ratingCount, String totalScore,
+    public static RedisResponse toRedisResponse(Map<Object,Object> ratingCount, String totalScore,
         String totalReview) {
         RedisResponse redisResponse = RedisResponse.builder()
             .ratingCount(ratingCount)

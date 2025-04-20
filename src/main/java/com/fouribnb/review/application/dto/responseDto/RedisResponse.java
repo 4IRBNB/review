@@ -5,7 +5,7 @@ import lombok.Builder;
 
 @Builder
 public record RedisResponse(
-    Map<?,?> ratingCount,
+    Map<Object,Object> ratingCount,
     Long totalScore,
     Long totalReview
 ) {
