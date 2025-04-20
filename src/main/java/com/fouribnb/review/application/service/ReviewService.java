@@ -2,6 +2,7 @@ package com.fouribnb.review.application.service;
 
 import com.fouribnb.review.application.dto.requestDto.CreateReviewInternalRequest;
 import com.fouribnb.review.application.dto.requestDto.UpdateReviewInternalRequest;
+import com.fouribnb.review.application.dto.responseDto.RedisResponse;
 import com.fouribnb.review.application.dto.responseDto.ReviewInternalResponse;
 import java.util.UUID;
 import org.springframework.data.domain.Page;
@@ -19,4 +20,5 @@ public interface ReviewService {
 
     void deleteReview(UUID reviewId, Long userId);
 
+    RedisResponse ratingStatistics(UUID lodgeId);
 }
