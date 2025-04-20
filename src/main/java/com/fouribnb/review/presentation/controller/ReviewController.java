@@ -68,8 +68,7 @@ public class ReviewController {
     public BaseResponse<Page<ReviewResponse>> getReviewsByUser(@RequestHeader Long userId,
         @PageableDefault(
             size = 10,
-            page = 0,
-            direction = Direction.ASC
+            page = 0
         ) Pageable pageable) {
         Page<ReviewInternalResponse> internalResponsePage = reviewService.getAllByUserId(userId,
             pageable);
