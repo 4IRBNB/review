@@ -52,7 +52,7 @@ public class ReviewDtoMapper {
 
     public static Page<ReviewResponse> toResponsePage(
         Page<ReviewInternalResponse> internalResponsePage) {
-        Page<ReviewResponse> ResponsePage = internalResponsePage.map(r -> ReviewResponse.builder()
+        Page<ReviewResponse> responsePage = internalResponsePage.map(r -> ReviewResponse.builder()
             .reviewId(r.reviewId())
             .lodgeId(r.lodgeId())
             .userId(r.userId())
@@ -60,7 +60,7 @@ public class ReviewDtoMapper {
             .rating(r.rating())
             .deletedBy(r.deletedBy())
             .build());
-        return ResponsePage;
+        return responsePage;
     }
 
 }

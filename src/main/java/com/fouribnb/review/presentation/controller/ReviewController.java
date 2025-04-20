@@ -1,5 +1,6 @@
 package com.fouribnb.review.presentation.controller;
 
+import com.fasterxml.jackson.databind.ser.Serializers.Base;
 import com.fouribnb.review.application.dto.requestDto.CreateReviewInternalRequest;
 import com.fouribnb.review.application.dto.requestDto.UpdateReviewInternalRequest;
 import com.fouribnb.review.application.dto.responseDto.ReviewInternalResponse;
@@ -99,6 +100,7 @@ public class ReviewController {
     public BaseResponse<Object> deleteReview(@PathVariable UUID reviewId, @RequestHeader Long userId) {
 
         reviewService.deleteReview(reviewId,userId);
-        return BaseResponse.FAIL("리뷰 삭제 성공", 204);
+
+        return BaseResponse.SUCCESS(null,"리뷰 삭제 성공", 204);
     }
 }
