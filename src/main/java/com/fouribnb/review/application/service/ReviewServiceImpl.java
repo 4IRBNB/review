@@ -11,7 +11,10 @@ import com.fouribnb.review.common.exception.CommonExceptionCode;
 import com.fouribnb.review.common.exception.CustomException;
 import com.fouribnb.review.domain.entity.Review;
 import com.fouribnb.review.domain.repository.ReviewRepository;
+import com.fouribnb.review.infrastructure.client.ReservationClient;
+import com.fouribnb.review.infrastructure.client.dto.ReservationResponse;
 import com.fourirbnb.common.config.JpaConfig;
+import com.fourirbnb.common.response.BaseResponse;
 import jakarta.transaction.Transactional;
 import java.util.List;
 import java.util.Map;
@@ -32,15 +35,34 @@ public class ReviewServiceImpl implements ReviewService {
 
     private final ReviewRepository reviewRepository;
     private final RedisReviewCacheService redisReviewCacheService;
+    private final ReservationClient reservationClient;
 
     @Override
     @Transactional
     public ReviewInternalResponse createReview(CreateReviewInternalRequest request) {
 
-        Review review = ReviewMapper.toEntity(request);
+        BaseResponse<List<ReservationResponse>> reservationResponsesPage = reservationClient.getReservationById(
+            request.userId());
 
-        // TODO : 리뷰 서비스와 Feign Client 통신 - 해당 숙소에 사용 내역이 있는 유저만 작성가능
+        Review review = null;
 
+        UUID reservationId = null;
+
+        for (ReservationResponse reservationResponse : reservationResponsesPage.getData()) {
+            if (reservationResponse.lodeId().equals(request.lodgeId())
+                && reservationResponse.reservationStatus().equals("COMPLETED")) {
+                review = ReviewMapper.toEntity(request, reservationResponse.lodeId());
+                reservationId = reservationResponse.id();
+                break;
+            } else {
+                throw new CustomException(CommonExceptionCode.RESERVATION_NOT_FOUND);
+            }
+        }
+
+        if (!reviewRepository.existsByReservationId(reservationId)) {
+            throw new CustomException(CommonExceptionCode.REVIEW_EXIST);
+
+        }
         Review saved = reviewRepository.save(review);
 
         return ReviewMapper.toResponse(saved);
@@ -114,7 +136,7 @@ public class ReviewServiceImpl implements ReviewService {
 
         log.info("캐싱정보 가져오기 : getRatingCount, totalScore: {}, totalReview: {}", ratingCount,
             totalScore);
-        // TODO : TTL 로 데이터 일관성 관리 -> 증분방식 적용하여 데이터 일관성 관리
+        // TTL 로 데이터 일관성 관리 -> 증분방식 적용하여 데이터 일관성 관리
         return RedisMapper.toRedisResponse(ratingCount, totalScore, totalReview);
     }
 

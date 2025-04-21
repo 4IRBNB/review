@@ -19,4 +19,6 @@ public interface ReviewRepository {
     Optional<Review> findById(UUID reviewId);
 
     List<RatingInternalResponse> ratingStatistics(UUID lodgeId);
+
+    boolean existsByReservationId(UUID reservationId);
 }

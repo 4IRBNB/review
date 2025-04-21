@@ -11,4 +11,6 @@ public interface ReviewJpaRepository extends JpaRepository<Review, UUID> {
     Page<Review> getAllByLodgeId(UUID lodgeId, Pageable pageable);
 
     Page<Review> getAllByUserId(Long userId, Pageable pageable);
+
+    boolean existsByReservationId(UUID reservationId);
 }
