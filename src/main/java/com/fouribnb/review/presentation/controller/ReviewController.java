@@ -29,7 +29,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -103,12 +102,12 @@ public class ReviewController {
     }
 
     // [리뷰 삭제]
-    @RoleCheck({"CUSTOMER", "MANAGER", "MASTER"})
+    @RoleCheck("CUSTOMER")
     @DeleteMapping("/{reviewId}")
     public BaseResponse<Object> deleteReview(@PathVariable UUID reviewId,
         @AuthenticatedUser UserInfo user) {
 
-        reviewService.deleteReview(reviewId, user.getUserId());
+        reviewService.deleteReviewByUser(reviewId, user.getUserId());
 
         return BaseResponse.SUCCESS(null, "리뷰 삭제 성공", 204);
     }

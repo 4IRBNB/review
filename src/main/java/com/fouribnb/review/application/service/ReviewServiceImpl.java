@@ -16,6 +16,7 @@ import com.fouribnb.review.infrastructure.client.dto.ReservationResponse;
 import com.fourirbnb.common.config.JpaConfig;
 import com.fourirbnb.common.response.BaseResponse;
 import jakarta.transaction.Transactional;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -111,12 +112,26 @@ public class ReviewServiceImpl implements ReviewService {
 
     @Override
     @Transactional
-    public void deleteReview(UUID reviewId, Long userId) {
+    public void deleteReviewByUser(UUID reviewId, Long userId) {
 
         Review review = reviewRepository.findById(reviewId)
             .orElseThrow(() -> new CustomException(CommonExceptionCode.REVIEW_NOT_FOUND));
 
-        log.info("After setDeleteReview, review: {}", review.getDeletedBy());
+        if (userId.equals(review.getUserId())) {
+            review.setDeleted(userId, LocalDateTime.now());
+        } else {
+            throw new CustomException(CommonExceptionCode.FORBIDDEN);
+        }
+    }
+
+    @Override
+    @Transactional
+    public void deleteReviewByAdmin(UUID reviewId, Long userId) {
+
+        Review review = reviewRepository.findById(reviewId)
+            .orElseThrow(() -> new CustomException(CommonExceptionCode.REVIEW_NOT_FOUND));
+
+        review.setDeleted(userId, LocalDateTime.now());
     }
 
     @Override
