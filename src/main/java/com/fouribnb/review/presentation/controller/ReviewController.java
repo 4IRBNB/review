@@ -13,6 +13,7 @@ import com.fouribnb.review.presentation.mapper.RedisDtoMapper;
 import com.fouribnb.review.presentation.mapper.ReviewDtoMapper;
 import com.fourirbnb.common.response.BaseResponse;
 import com.fourirbnb.common.security.AuthenticatedUser;
+import com.fourirbnb.common.security.RoleCheck;
 import com.fourirbnb.common.security.UserInfo;
 import jakarta.validation.Valid;
 import java.util.UUID;
@@ -41,7 +42,7 @@ public class ReviewController {
     private final ReviewService reviewService;
 
     // [리뷰 작성]
-    // TODO : 로그인한 사용자가 CUSTOMER 권한을 가져야 리뷰작성 가능
+    @RoleCheck("CUSTOMER")
     @PostMapping
     public BaseResponse<ReviewResponse> createReview(
         @Valid @RequestBody CreateReviewRequest request, @AuthenticatedUser UserInfo user) {
@@ -85,7 +86,7 @@ public class ReviewController {
 
 
     // [리뷰 수정]
-    // TODO : 로그인한 사용자가 CUSTOMER 권한을 가져야 리뷰수정 가능
+    @RoleCheck("CUSTOMER")
     @PutMapping("/{reviewId}")
     public BaseResponse<ReviewResponse> updateReview(@PathVariable UUID reviewId,
         @Valid @RequestBody UpdateReviewRequest request, @AuthenticatedUser UserInfo user) {
@@ -101,7 +102,8 @@ public class ReviewController {
     }
 
     // [리뷰 삭제]
-    // TODO : 로그인한 사용자가 CUSTOMER 권한을 가져야 리뷰삭제 가능
+    // TODO : 권한에 MASTER, MANAGER 추가
+    @RoleCheck("CUSTOMER")
     @DeleteMapping("/{reviewId}")
     public BaseResponse<Object> deleteReview(@PathVariable UUID reviewId,
         @AuthenticatedUser UserInfo user) {
