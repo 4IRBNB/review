@@ -12,9 +12,12 @@ import com.fouribnb.review.presentation.dto.responseDto.ReviewResponse;
 import com.fouribnb.review.presentation.mapper.RedisDtoMapper;
 import com.fouribnb.review.presentation.mapper.ReviewDtoMapper;
 import com.fourirbnb.common.response.BaseResponse;
+import com.fourirbnb.common.security.AuthenticatedUser;
+import com.fourirbnb.common.security.UserInfo;
 import jakarta.validation.Valid;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort.Direction;
@@ -29,6 +32,7 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/reviews")
 @RequiredArgsConstructor
@@ -40,14 +44,13 @@ public class ReviewController {
     // TODO : 로그인한 사용자가 CUSTOMER 권한을 가져야 리뷰작성 가능
     @PostMapping
     public BaseResponse<ReviewResponse> createReview(
-        @Valid @RequestBody CreateReviewRequest request, @RequestHeader Long userId) {
-
+        @Valid @RequestBody CreateReviewRequest request, @AuthenticatedUser UserInfo user) {
         CreateReviewInternalRequest internalRequest = ReviewDtoMapper.toCreateInternalDto(request,
-            userId);
+            user.getUserId());
 
         ReviewInternalResponse internalResponse = reviewService.createReview(internalRequest);
 
-        return BaseResponse.SUCCESS(ReviewDtoMapper.toResponse(internalResponse), "리뷰작성 성공");
+        return BaseResponse.SUCCESS(ReviewDtoMapper.toResponse(internalResponse), "리뷰 작성 성공");
     }
 
     // [리뷰 목록 조회]
@@ -68,12 +71,12 @@ public class ReviewController {
 
     // [내 리뷰 조회]
     @GetMapping("/me")
-    public BaseResponse<Page<ReviewResponse>> getReviewsByUser(@RequestHeader Long userId,
+    public BaseResponse<Page<ReviewResponse>> getReviewsByUser(@AuthenticatedUser UserInfo user,
         @PageableDefault(
             size = 10,
             page = 0
         ) Pageable pageable) {
-        Page<ReviewInternalResponse> internalResponsePage = reviewService.getAllByUserId(userId,
+        Page<ReviewInternalResponse> internalResponsePage = reviewService.getAllByUserId(user.getUserId(),
             pageable);
 
         return BaseResponse.SUCCESS(ReviewDtoMapper.toResponsePage(internalResponsePage),
@@ -85,10 +88,10 @@ public class ReviewController {
     // TODO : 로그인한 사용자가 CUSTOMER 권한을 가져야 리뷰수정 가능
     @PutMapping("/{reviewId}")
     public BaseResponse<ReviewResponse> updateReview(@PathVariable UUID reviewId,
-        @Valid @RequestBody UpdateReviewRequest request, @RequestHeader Long userId) {
+        @Valid @RequestBody UpdateReviewRequest request, @AuthenticatedUser UserInfo user) {
 
         UpdateReviewInternalRequest internalRequest = ReviewDtoMapper.toUpdateInternalDto(request,
-            userId);
+            user.getUserId());
 
         ReviewInternalResponse internalResponse = reviewService.updateReview(reviewId,
             internalRequest);
@@ -101,9 +104,9 @@ public class ReviewController {
     // TODO : 로그인한 사용자가 CUSTOMER 권한을 가져야 리뷰삭제 가능
     @DeleteMapping("/{reviewId}")
     public BaseResponse<Object> deleteReview(@PathVariable UUID reviewId,
-        @RequestHeader Long userId) {
+        @AuthenticatedUser UserInfo user) {
 
-        reviewService.deleteReview(reviewId, userId);
+        reviewService.deleteReview(reviewId, user.getUserId());
 
         return BaseResponse.SUCCESS(null, "리뷰 삭제 성공", 204);
     }
