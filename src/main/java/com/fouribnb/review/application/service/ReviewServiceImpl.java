@@ -11,11 +11,10 @@ import com.fouribnb.review.common.exception.CommonExceptionCode;
 import com.fouribnb.review.common.exception.CustomException;
 import com.fouribnb.review.domain.entity.Review;
 import com.fouribnb.review.domain.repository.ReviewRepository;
-import com.fouribnb.review.infrastructure.redis.RedisUtils;
 import com.fourirbnb.common.config.JpaConfig;
 import jakarta.transaction.Transactional;
-import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -32,7 +31,7 @@ import org.springframework.stereotype.Service;
 public class ReviewServiceImpl implements ReviewService {
 
     private final ReviewRepository reviewRepository;
-    private final RedisUtils redisUtils;
+    private final RedisReviewCacheService redisReviewCacheService;
 
     @Override
     @Transactional
@@ -101,44 +100,22 @@ public class ReviewServiceImpl implements ReviewService {
     @Override
     @Transactional
     public RedisResponse ratingStatistics(UUID lodgeId) {
-        // 해당 lodgeId 의 리뷰 목록 조회( 별점 1 갯수 , 별점 2 갯수 ... ) 이런식으로 조회
-        List<RatingInternalResponse> internalResponseList = reviewRepository.ratingStatistics(
+
+        if (redisReviewCacheService.isCache(lodgeId)) {
+            List<RatingInternalResponse> ratingInternalResponseList = reviewRepository.ratingStatistics(
+                lodgeId);
+            redisReviewCacheService.setDataToRedis(ratingInternalResponseList, lodgeId);
+        }
+        Map<Object, Object> ratingCount = redisReviewCacheService.getRatingCountFromRedis(
             lodgeId);
-        log.info("별점 , review: {}", internalResponseList);
+        String totalScore = redisReviewCacheService.getTotalScoreFromRedis(lodgeId);
+        String totalReview = redisReviewCacheService.getTotalReviewFromRedis(lodgeId);
 
-        // 가져온 데이터 Redis 에 저장
-        String redisKey1 = "ratingCount:"+lodgeId;
-        for (RatingInternalResponse internalResponse : internalResponseList) {
-            redisUtils.setRatingCount(redisKey1, internalResponse.rating().toString(),
-                internalResponse.count().toString());
-        }
-
-        // 총 별점, 총 리뷰 수 Redis 에 저장
-        String redisKey2 = "totalScore:"+lodgeId;
-        Long totalScore = 0L;
-        for (int i = 0; i < internalResponseList.size(); i++) {
-            totalScore += (internalResponseList.get(i).count() * internalResponseList.get(i)
-                .rating());
-        }
-        log.info("totalScore: {}", totalScore);
-        redisUtils.setData(redisKey2, totalScore.toString());
-
-        String redisKey3 = "totalReview:"+lodgeId;
-        Long totalReview = 0L;
-        for (int i = 0; i < internalResponseList.size(); i++) {
-            totalReview += internalResponseList.get(i).count();
-        }
-        log.info("totalReview: {}", totalReview);
-        redisUtils.setData(redisKey3, totalReview.toString());
-
-        // response DTO 로 변환
-        log.info("get 별점 : {}", redisUtils.getRatingCount(redisKey1));
-        log.info("get 총 별점: {}", redisUtils.getData(redisKey2));
-        log.info("get 리뷰 갯수: {}", redisUtils.getData(redisKey3));
-
+        log.info("캐싱정보 가져오기 : getRatingCount, totalScore: {}, totalReview: {}", ratingCount,
+            totalScore);
         // TODO : 증분방식 적용
-
-        return RedisMapper.toRedisResponse(redisUtils.getRatingCount(redisKey1),
-            redisUtils.getData(redisKey2), redisUtils.getData(redisKey3));
+        return RedisMapper.toRedisResponse(ratingCount, totalScore, totalReview);
     }
+
+
 }
