@@ -77,7 +77,8 @@ public class ReviewController {
             size = 10,
             page = 0
         ) Pageable pageable) {
-        Page<ReviewInternalResponse> internalResponsePage = reviewService.getAllByUserId(user.getUserId(),
+        Page<ReviewInternalResponse> internalResponsePage = reviewService.getAllByUserId(
+            user.getUserId(),
             pageable);
 
         return BaseResponse.SUCCESS(ReviewDtoMapper.toResponsePage(internalResponsePage),
@@ -102,8 +103,7 @@ public class ReviewController {
     }
 
     // [리뷰 삭제]
-    // TODO : 권한에 MASTER, MANAGER 추가
-    @RoleCheck("CUSTOMER")
+    @RoleCheck({"CUSTOMER", "MANAGER", "MASTER"})
     @DeleteMapping("/{reviewId}")
     public BaseResponse<Object> deleteReview(@PathVariable UUID reviewId,
         @AuthenticatedUser UserInfo user) {
