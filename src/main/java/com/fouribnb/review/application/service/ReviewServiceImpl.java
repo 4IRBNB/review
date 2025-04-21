@@ -102,6 +102,7 @@ public class ReviewServiceImpl implements ReviewService {
     public RedisResponse ratingStatistics(UUID lodgeId) {
 
         if (redisReviewCacheService.isCache(lodgeId)) {
+            log.info("캐싱 처리");
             List<RatingInternalResponse> ratingInternalResponseList = reviewRepository.ratingStatistics(
                 lodgeId);
             redisReviewCacheService.setDataToRedis(ratingInternalResponseList, lodgeId);
@@ -113,7 +114,7 @@ public class ReviewServiceImpl implements ReviewService {
 
         log.info("캐싱정보 가져오기 : getRatingCount, totalScore: {}, totalReview: {}", ratingCount,
             totalScore);
-        // TODO : 증분방식 적용
+        // TODO : TTL 로 데이터 일관성 관리 -> 증분방식 적용하여 데이터 일관성 관리
         return RedisMapper.toRedisResponse(ratingCount, totalScore, totalReview);
     }
 
