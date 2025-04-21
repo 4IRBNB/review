@@ -39,7 +39,7 @@ dependencies {
     testImplementation group: 'org.mockito', name: 'mockito-inline', version: '4.9.0'
 
     // 공통 모듈
-    implementation 'com.fourirbnb:common:1.4.0'
+    implementation 'com.fourirbnb:common:1.5.0'
 
     // swagger
 //	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.7.0'
