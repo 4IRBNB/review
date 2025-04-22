@@ -50,7 +50,7 @@ public class ReviewServiceImpl implements ReviewService {
         UUID reservationId = null;
 
         for (ReservationResponse reservationResponse : reservationResponsesPage.getData()) {
-            if (reservationResponse.lodeId().equals(request.lodgeId())
+            if (reservationResponse.lodgeId().equals(request.lodgeId())
                 && reservationResponse.reservationStatus().equals("COMPLETED")) {
                 review = ReviewMapper.toEntity(request, reservationResponse.id());
                 reservationId = reservationResponse.id();
