@@ -33,10 +33,10 @@ reservation:
     url: http://localhost:${RESERVATION_SERVICE_PORT}
 
 
-#eureka:
-#  client:
-#    service-url:
-#      defaultZone: http://localhost:19090/eureka/
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:19090/eureka/
 
 #message: "default message" # config server? ???? ?? ?
 
