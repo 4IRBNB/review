@@ -7,7 +7,7 @@ import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-@FeignClient(name = "reservation-service", url = "http://localhost:19095")
+@FeignClient(name = "reservation-service", url = "${reservation.service.url}")
 public interface ReservationClient {
 
     @GetMapping("/internal/reservations/me")

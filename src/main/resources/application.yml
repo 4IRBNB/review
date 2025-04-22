@@ -1,3 +1,6 @@
+server:
+  port: 19097
+
 spring:
   application:
     name: review
@@ -24,8 +27,11 @@ spring:
     redis:
       host: localhost
       port: ${REDIS_BINDING_PORT}
-server:
-  port: 19097
+
+reservation:
+  service:
+    url: http://localhost:${RESERVATION_SERVICE_PORT}
+
 
 #eureka:
 #  client:
