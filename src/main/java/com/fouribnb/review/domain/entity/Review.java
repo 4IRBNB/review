@@ -35,6 +35,9 @@ public class Review extends BaseEntity {
     @Column(name = "lodge_id", nullable = false)
     private UUID lodgeId;
 
+    @Column(name = "reservation_id", nullable = false)
+    private UUID reservationId;
+
     @Column(name = "content", nullable = false)
     private String content;
 
@@ -42,9 +45,10 @@ public class Review extends BaseEntity {
     private Long rating;
 
     @Builder
-    public Review(Long userId, UUID lodgeId, String content, Long rating) {
+    public Review(Long userId, UUID lodgeId, UUID reservationId, String content, Long rating) {
         this.userId = userId;
         this.lodgeId = lodgeId;
+        this.reservationId = reservationId;
         this.content = content;
         this.rating = rating;
     }

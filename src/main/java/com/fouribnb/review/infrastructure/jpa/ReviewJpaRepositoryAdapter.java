@@ -56,4 +56,9 @@ public class ReviewJpaRepositoryAdapter implements ReviewRepository {
             .groupBy(review.rating)
             .fetch();
     }
+
+    @Override
+    public boolean existsByReservationId(UUID reservationId) {
+        return reviewJpaRepository.existsByReservationId(reservationId);
+    }
 }

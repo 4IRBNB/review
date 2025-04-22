@@ -1,3 +1,6 @@
+server:
+  port: 19097
+
 spring:
   application:
     name: review
@@ -7,26 +10,28 @@ spring:
     import: optional:file:.env[.properties]
   #    import: "configserver:http://localhost:18080"
   datasource:
-    url: jdbc:h2:~/test
-    username: sa
-    password:
-    driver-class-name: org.h2.Driver
-  h2:
-    console:
-      enabled: true
+    driver-class-name: org.postgresql.Driver
+    username: ${POSTGRES_USER}
+    password: ${POSTGRES_PASSWORD}
+    url: jdbc:postgresql://localhost:${POSTGRES_BINDING_PORT}/${POSTGRES_DB}
+
   jpa:
     hibernate:
       ddl-auto: update
     properties:
       hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
         show_sql: true
         format_sql: true
   data:
     redis:
       host: localhost
       port: ${REDIS_BINDING_PORT}
-server:
-  port: 19097
+
+reservation:
+  service:
+    url: http://localhost:${RESERVATION_SERVICE_PORT}
+
 
 #eureka:
 #  client:

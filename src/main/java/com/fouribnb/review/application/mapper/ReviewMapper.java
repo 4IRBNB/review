@@ -3,15 +3,17 @@ package com.fouribnb.review.application.mapper;
 import com.fouribnb.review.application.dto.requestDto.CreateReviewInternalRequest;
 import com.fouribnb.review.application.dto.responseDto.ReviewInternalResponse;
 import com.fouribnb.review.domain.entity.Review;
+import java.util.UUID;
 import org.springframework.data.domain.Page;
 
 public class ReviewMapper {
 
     // 내부 Dto -> Entity
-    public static Review toEntity(CreateReviewInternalRequest request) {
+    public static Review toEntity(CreateReviewInternalRequest request, UUID reservationId) {
         return new Review(
             request.userId(),
             request.lodgeId(),
+            reservationId,
             request.content(),
             request.rating()
         );

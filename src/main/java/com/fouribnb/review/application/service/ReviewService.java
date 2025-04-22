@@ -18,7 +18,9 @@ public interface ReviewService {
 
     ReviewInternalResponse updateReview(UUID reviewId, UpdateReviewInternalRequest request);
 
-    void deleteReview(UUID reviewId, Long userId);
+    void deleteReviewByUser(UUID reviewId, Long userId);
+
+    void deleteReviewByAdmin(UUID reviewId, Long userId);
 
     RedisResponse ratingStatistics(UUID lodgeId);
 }
