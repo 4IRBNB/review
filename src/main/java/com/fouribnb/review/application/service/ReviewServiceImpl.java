@@ -52,7 +52,7 @@ public class ReviewServiceImpl implements ReviewService {
         for (ReservationResponse reservationResponse : reservationResponsesPage.getData()) {
             if (reservationResponse.lodeId().equals(request.lodgeId())
                 && reservationResponse.reservationStatus().equals("COMPLETED")) {
-                review = ReviewMapper.toEntity(request, reservationResponse.lodeId());
+                review = ReviewMapper.toEntity(request, reservationResponse.id());
                 reservationId = reservationResponse.id();
                 break;
             } else {
@@ -60,7 +60,9 @@ public class ReviewServiceImpl implements ReviewService {
             }
         }
 
-        if (!reviewRepository.existsByReservationId(reservationId)) {
+        log.info("해당 예약으로 작성된 리뷰 존재 : {}",reviewRepository.existsByReservationId(reservationId));
+
+        if (reviewRepository.existsByReservationId(reservationId)) {
             throw new CustomException(CommonExceptionCode.REVIEW_EXIST);
 
         }

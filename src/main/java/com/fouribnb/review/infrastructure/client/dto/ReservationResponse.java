@@ -6,7 +6,7 @@ import java.util.UUID;
 public record ReservationResponse(
     UUID id,
     Long userId,
-    UUID lodeId,
+    UUID lodeId, // lodgeId 로 변경
     Long price,
     LocalDateTime checkInDate,
     LocalDateTime checkOutDate,
