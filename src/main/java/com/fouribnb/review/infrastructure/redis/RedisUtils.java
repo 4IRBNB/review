@@ -1,11 +1,16 @@
 package com.fouribnb.review.infrastructure.redis;
 
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataAccessException;
 import org.springframework.data.redis.core.HashOperations;
+import org.springframework.data.redis.core.RedisOperations;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.SessionCallback;
+import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Service;
 
 @Slf4j
@@ -34,36 +39,61 @@ public class RedisUtils {
         return redisTemplate.opsForValue().get(key);
     }
 
-    public void addHashData(String key, Long field) {
-        HashOperations<String, Object, Object> hashOperations = redisTemplate.opsForHash();
-        hashOperations.increment(key, String.valueOf(field), 1);
+    public void addData(String ratingCountKey, String totalScoreKey, String totalReviewKey,
+        Long rating) {
+        List<Object> txResults = redisTemplate.execute(new SessionCallback<List<Object>>() {
+            @Override
+            public List<Object> execute(RedisOperations operations) throws DataAccessException {
+                operations.multi();
+                HashOperations<String, Object, Object> hashOperations = operations.opsForHash();
+                hashOperations.increment(ratingCountKey, String.valueOf(rating), 1);
+
+                ValueOperations<String, Object> valueOperations = operations.opsForValue();
+                valueOperations.increment(totalScoreKey, rating);
+                valueOperations.increment(totalReviewKey, 1L);
+
+                return operations.exec();
+            }
+        });
+    }
+    public void updateData(String ratingCountKey, String totalScoreKey, Long beforeRating,
+        Long afterRating) {
+        List<Object> txResults = redisTemplate.execute(new SessionCallback<List<Object>>() {
+            @Override
+            public List<Object> execute(RedisOperations operations) throws DataAccessException {
+                operations.multi();
+                HashOperations<String, Object, Object> hashOperations = operations.opsForHash();
+
+                hashOperations.increment(ratingCountKey, String.valueOf(beforeRating), -1);
+                hashOperations.increment(ratingCountKey, String.valueOf(afterRating), 1);
+
+                ValueOperations<String, Object> valueOperations = operations.opsForValue();
+                if (afterRating > beforeRating) {
+                    valueOperations.increment(totalScoreKey, (afterRating - beforeRating));
+                } else if (beforeRating > afterRating) {
+                    valueOperations.decrement(totalScoreKey, (beforeRating - afterRating));
+                }
+
+                return operations.exec();
+            }
+        });
     }
 
-    public void addData(String key, Long rating) {
-        redisTemplate.opsForValue().increment(key, rating);
+    public void deleteData(String ratingCountKey, String totalScoreKey, String totalReviewKey,
+        Long rating) {
+        List<Object> txResults = redisTemplate.execute(new SessionCallback<List<Object>>() {
+            @Override
+            public List<Object> execute(RedisOperations operations) throws DataAccessException {
+                operations.multi();
+                HashOperations<String, Object, Object> hashOperations = operations.opsForHash();
+                hashOperations.increment(ratingCountKey, String.valueOf(rating), -1);
 
-    }
+                ValueOperations<String, Object> valueOperations = operations.opsForValue();
+                valueOperations.decrement(totalScoreKey, rating);
+                valueOperations.decrement(totalReviewKey, 1L);
 
-    public void updateHashData(String key, Long beforeField, Long afterField) {
-        HashOperations<String, Object, Object> hashOperations = redisTemplate.opsForHash();
-        hashOperations.increment(key, String.valueOf(afterField), 1);
-        hashOperations.increment(key, String.valueOf(beforeField), -1);
-    }
-
-    public void updateData(String key, Long afterRating, Long beforeRating) {
-        if (afterRating > beforeRating) {
-            redisTemplate.opsForValue().increment(key, (afterRating - beforeRating));
-        } else if (beforeRating > afterRating) {
-            redisTemplate.opsForValue().decrement(key, (beforeRating - afterRating));
-        }
-    }
-
-    public void deleteHashData(String key, Long field) {
-        HashOperations<String, Object, Object> hashOperations = redisTemplate.opsForHash();
-        hashOperations.increment(key, String.valueOf(field), -1);
-    }
-
-    public void deleteData(String key, Long rating) {
-        redisTemplate.opsForValue().decrement(key, rating);
+                return operations.exec();
+            }
+        });
     }
 }

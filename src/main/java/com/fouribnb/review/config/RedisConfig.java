@@ -25,16 +25,15 @@ public class RedisConfig {
         RedisTemplate<String, Object> redisTemplate = new RedisTemplate<>();
         redisTemplate.setConnectionFactory(redisConnectionFactory());
 
-        // 일반적인 key:value의 경우 시리얼라이저
+        // 직렬화
         redisTemplate.setKeySerializer(new StringRedisSerializer());
         redisTemplate.setValueSerializer(new StringRedisSerializer());
-
-        // Hash를 사용할 경우 시리얼라이저
         redisTemplate.setHashKeySerializer(new StringRedisSerializer());
         redisTemplate.setHashValueSerializer(new StringRedisSerializer());
-
-        // 모든 경우
         redisTemplate.setDefaultSerializer(new StringRedisSerializer());
+
+        // 트랜잭션
+        redisTemplate.setEnableTransactionSupport(true);
 
         return redisTemplate;
     }
