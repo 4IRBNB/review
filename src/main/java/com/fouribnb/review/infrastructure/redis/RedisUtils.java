@@ -18,12 +18,12 @@ public class RedisUtils {
     public void setHashData(String key, String field, String value) {
         HashOperations<String, Object, Object> hashOperations = redisTemplate.opsForHash();
         hashOperations.put(key, field, value);
-        redisTemplate.expire(key, 5, TimeUnit.MINUTES);
+        redisTemplate.expire(key, 1, TimeUnit.HOURS);
     }
 
     public void setData(String key, String value) {
         redisTemplate.opsForValue().set(key, value);
-        redisTemplate.expire(key, 5, TimeUnit.MINUTES);
+        redisTemplate.expire(key, 1, TimeUnit.HOURS);
     }
 
     public Map<Object, Object> getHashData(String key) {
