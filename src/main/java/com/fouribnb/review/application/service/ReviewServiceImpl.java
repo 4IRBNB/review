@@ -60,13 +60,15 @@ public class ReviewServiceImpl implements ReviewService {
             }
         }
 
-        log.info("해당 예약으로 작성된 리뷰 존재 : {}",reviewRepository.existsByReservationId(reservationId));
+        log.info("해당 예약으로 작성된 리뷰 존재 : {}", reviewRepository.existsByReservationId(reservationId));
 
         if (reviewRepository.existsByReservationId(reservationId)) {
             throw new CustomException(CustomExceptionCode.REVIEW_EXIST);
 
         }
         Review saved = reviewRepository.save(review);
+
+        redisReviewCacheService.addRating(saved.getLodgeId(), saved.getRating());
 
         return ReviewMapper.toResponse(saved);
     }
@@ -103,8 +105,13 @@ public class ReviewServiceImpl implements ReviewService {
         Review review = reviewRepository.findById(reviewId)
             .orElseThrow(() -> new CustomException(CustomExceptionCode.REVIEW_NOT_FOUND));
 
+        Long beforeRating = review.getRating();
+        log.info("수정 전 별점 : {}", beforeRating);
+
         if (Objects.equals(review.getUserId(), request.userId())) {
             review.updateReview(request.content(), request.rating());
+            redisReviewCacheService.updateRating(review.getLodgeId(), beforeRating,
+                review.getRating());
         } else {
             throw new CustomException(CustomExceptionCode.FORBIDDEN);
         }
@@ -121,6 +128,7 @@ public class ReviewServiceImpl implements ReviewService {
 
         if (userId.equals(review.getUserId())) {
             review.setDeleted(userId, LocalDateTime.now());
+            redisReviewCacheService.deleteRating(review.getLodgeId(), review.getRating());
         } else {
             throw new CustomException(CustomExceptionCode.FORBIDDEN);
         }
@@ -134,14 +142,15 @@ public class ReviewServiceImpl implements ReviewService {
             .orElseThrow(() -> new CustomException(CustomExceptionCode.REVIEW_NOT_FOUND));
 
         review.setDeleted(userId, LocalDateTime.now());
+
+        redisReviewCacheService.deleteRating(review.getLodgeId(), review.getRating());
     }
 
     @Override
     @Transactional
     public RedisResponse ratingStatistics(UUID lodgeId) {
 
-        if (redisReviewCacheService.isCache(lodgeId)) {
-            log.info("캐싱 처리");
+        if (!redisReviewCacheService.isCache(lodgeId)) {
             List<RatingInternalResponse> ratingInternalResponseList = reviewRepository.ratingStatistics(
                 lodgeId);
             redisReviewCacheService.setDataToRedis(ratingInternalResponseList, lodgeId);
@@ -151,9 +160,9 @@ public class ReviewServiceImpl implements ReviewService {
         String totalScore = redisReviewCacheService.getTotalScoreFromRedis(lodgeId);
         String totalReview = redisReviewCacheService.getTotalReviewFromRedis(lodgeId);
 
-        log.info("캐싱정보 가져오기 : getRatingCount, totalScore: {}, totalReview: {}", ratingCount,
-            totalScore);
-        // TTL 로 데이터 일관성 관리 -> 증분방식 적용하여 데이터 일관성 관리
+        log.info("캐싱정보 가져오기 : getRatingCount{}, totalScore: {}, totalReview: {}", ratingCount,
+            totalScore, totalReview);
+
         return RedisMapper.toRedisResponse(ratingCount, totalScore, totalReview);
     }
 

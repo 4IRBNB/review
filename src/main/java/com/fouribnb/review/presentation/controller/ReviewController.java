@@ -116,8 +116,15 @@ public class ReviewController {
     @GetMapping("/lodge/{lodgeId}/statistics")
     public BaseResponse<RatingResponse> ratingStatistics(@PathVariable UUID lodgeId) {
 
+        long startTime = System.currentTimeMillis();
+        log.info("별점 통계 시작 : {}", startTime);
+
         RedisResponse redisResponse = reviewService.ratingStatistics(lodgeId);
 
+        long endTime = System.currentTimeMillis();
+        log.info("별점 통계 끝 : {}", endTime);
+
+        log.info("==> 소요 시간 : {} ms",endTime-startTime);
         return BaseResponse.SUCCESS(RedisDtoMapper.toRatingResponse(redisResponse), "별점 통계 성공");
     }
 }

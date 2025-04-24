@@ -19,10 +19,9 @@ public class RedisReviewCacheService {
     public void setDataToRedis(List<RatingInternalResponse> internalResponseList, UUID lodgeId) {
         String ratingCountKey = "ratingCount:" + lodgeId;
         for (RatingInternalResponse internalResponse : internalResponseList) {
-            redisUtils.setRatingCount(ratingCountKey, internalResponse.rating().toString(),
+            redisUtils.setHashData(ratingCountKey, internalResponse.rating().toString(),
                 internalResponse.count().toString());
         }
-        log.info("rating count: {}", ratingCountKey);
 
         String totalScoreKey = "totalScore:" + lodgeId;
         Long totalScore = 0L;
@@ -30,7 +29,6 @@ public class RedisReviewCacheService {
             totalScore += (internalResponseList.get(i).count() * internalResponseList.get(i)
                 .rating());
         }
-        log.info("totalScore: {}", totalScore);
         redisUtils.setData(totalScoreKey, totalScore.toString());
 
         String totalReviewKey = "totalReview:" + lodgeId;
@@ -38,13 +36,12 @@ public class RedisReviewCacheService {
         for (int i = 0; i < internalResponseList.size(); i++) {
             totalReview += internalResponseList.get(i).count();
         }
-        log.info("totalReview: {}", totalReview);
         redisUtils.setData(totalReviewKey, totalReview.toString());
     }
 
     public Map<Object, Object> getRatingCountFromRedis(UUID lodgeId) {
         String ratingCountKey = "ratingCount:" + lodgeId;
-        return redisUtils.getRatingCount(ratingCountKey);
+        return redisUtils.getHashData(ratingCountKey);
     }
 
     public String getTotalScoreFromRedis(UUID lodgeId) {
@@ -58,6 +55,34 @@ public class RedisReviewCacheService {
     }
 
     public boolean isCache(UUID lodgeId) {
-        return getTotalReviewFromRedis(lodgeId) == null;
+        return getTotalReviewFromRedis(lodgeId) != null;
+    }
+
+    public void addRating(UUID lodgeId, Long rating) {
+        String ratingCountKey = "ratingCount:" + lodgeId;
+        String totalScoreKey = "totalScore:" + lodgeId;
+        String totalReviewKey = "totalReview:" + lodgeId;
+
+        redisUtils.addHashData(ratingCountKey, rating);
+        redisUtils.addData(totalScoreKey, rating);
+        redisUtils.addData(totalReviewKey, 1L);
+    }
+
+    public void updateRating(UUID lodgeId, Long beforeRating, Long afterRating) {
+        String ratingCountKey = "ratingCount:" + lodgeId;
+        String totalScoreKey = "totalScore:" + lodgeId;
+
+        redisUtils.updateHashData(ratingCountKey, beforeRating, afterRating);
+        redisUtils.updateData(totalScoreKey, afterRating, beforeRating);
+    }
+
+    public void deleteRating(UUID lodgeId, Long rating) {
+        String ratingCountKey = "ratingCount:" + lodgeId;
+        String totalScoreKey = "totalScore:" + lodgeId;
+        String totalReviewKey = "totalReview:" + lodgeId;
+
+        redisUtils.deleteHashData(ratingCountKey, rating);
+        redisUtils.deleteData(totalScoreKey,rating);
+        redisUtils.deleteData(totalReviewKey,1L);
     }
 }
