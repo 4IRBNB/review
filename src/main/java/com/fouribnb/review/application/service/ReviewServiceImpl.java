@@ -7,7 +7,7 @@ import com.fouribnb.review.application.dto.responseDto.RedisResponse;
 import com.fouribnb.review.application.dto.responseDto.ReviewInternalResponse;
 import com.fouribnb.review.application.mapper.RedisMapper;
 import com.fouribnb.review.application.mapper.ReviewMapper;
-import com.fouribnb.review.common.exception.CommonExceptionCode;
+import com.fouribnb.review.common.exception.CustomExceptionCode;
 import com.fouribnb.review.common.exception.CustomException;
 import com.fouribnb.review.domain.entity.Review;
 import com.fouribnb.review.domain.repository.ReviewRepository;
@@ -56,17 +56,19 @@ public class ReviewServiceImpl implements ReviewService {
                 reservationId = reservationResponse.id();
                 break;
             } else {
-                throw new CustomException(CommonExceptionCode.RESERVATION_NOT_FOUND);
+                throw new CustomException(CustomExceptionCode.RESERVATION_NOT_FOUND);
             }
         }
 
-        log.info("해당 예약으로 작성된 리뷰 존재 : {}",reviewRepository.existsByReservationId(reservationId));
+        log.info("해당 예약으로 작성된 리뷰 존재 : {}", reviewRepository.existsByReservationId(reservationId));
 
         if (reviewRepository.existsByReservationId(reservationId)) {
-            throw new CustomException(CommonExceptionCode.REVIEW_EXIST);
+            throw new CustomException(CustomExceptionCode.REVIEW_EXIST);
 
         }
         Review saved = reviewRepository.save(review);
+
+        redisReviewCacheService.addRating(saved.getLodgeId(), saved.getRating());
 
         return ReviewMapper.toResponse(saved);
     }
@@ -76,7 +78,7 @@ public class ReviewServiceImpl implements ReviewService {
         Page<Review> reviewPage = reviewRepository.getAllByLodgeId(lodgeId, pageable);
 
         if (reviewPage.isEmpty()) {
-            throw new CustomException(CommonExceptionCode.REVIEW_NOT_FOUND);
+            throw new CustomException(CustomExceptionCode.REVIEW_NOT_FOUND);
         }
 
         Page<ReviewInternalResponse> internalResponsePage = ReviewMapper.toResponsePage(reviewPage);
@@ -89,7 +91,7 @@ public class ReviewServiceImpl implements ReviewService {
         Page<Review> reviewPage = reviewRepository.getAllByUserId(userId, pageable);
 
         if (reviewPage.isEmpty()) {
-            throw new CustomException(CommonExceptionCode.REVIEW_NOT_FOUND);
+            throw new CustomException(CustomExceptionCode.REVIEW_NOT_FOUND);
         }
 
         Page<ReviewInternalResponse> internalResponsePage = ReviewMapper.toResponsePage(reviewPage);
@@ -101,12 +103,17 @@ public class ReviewServiceImpl implements ReviewService {
     public ReviewInternalResponse updateReview(UUID reviewId, UpdateReviewInternalRequest request) {
 
         Review review = reviewRepository.findById(reviewId)
-            .orElseThrow(() -> new CustomException(CommonExceptionCode.REVIEW_NOT_FOUND));
+            .orElseThrow(() -> new CustomException(CustomExceptionCode.REVIEW_NOT_FOUND));
+
+        Long beforeRating = review.getRating();
+        log.info("수정 전 별점 : {}", beforeRating);
 
         if (Objects.equals(review.getUserId(), request.userId())) {
             review.updateReview(request.content(), request.rating());
+            redisReviewCacheService.updateRating(review.getLodgeId(), beforeRating,
+                review.getRating());
         } else {
-            throw new CustomException(CommonExceptionCode.FORBIDDEN);
+            throw new CustomException(CustomExceptionCode.FORBIDDEN);
         }
 
         return ReviewMapper.toResponse(review);
@@ -117,12 +124,13 @@ public class ReviewServiceImpl implements ReviewService {
     public void deleteReviewByUser(UUID reviewId, Long userId) {
 
         Review review = reviewRepository.findById(reviewId)
-            .orElseThrow(() -> new CustomException(CommonExceptionCode.REVIEW_NOT_FOUND));
+            .orElseThrow(() -> new CustomException(CustomExceptionCode.REVIEW_NOT_FOUND));
 
         if (userId.equals(review.getUserId())) {
             review.setDeleted(userId, LocalDateTime.now());
+            redisReviewCacheService.deleteRating(review.getLodgeId(), review.getRating());
         } else {
-            throw new CustomException(CommonExceptionCode.FORBIDDEN);
+            throw new CustomException(CustomExceptionCode.FORBIDDEN);
         }
     }
 
@@ -131,17 +139,18 @@ public class ReviewServiceImpl implements ReviewService {
     public void deleteReviewByAdmin(UUID reviewId, Long userId) {
 
         Review review = reviewRepository.findById(reviewId)
-            .orElseThrow(() -> new CustomException(CommonExceptionCode.REVIEW_NOT_FOUND));
+            .orElseThrow(() -> new CustomException(CustomExceptionCode.REVIEW_NOT_FOUND));
 
         review.setDeleted(userId, LocalDateTime.now());
+
+        redisReviewCacheService.deleteRating(review.getLodgeId(), review.getRating());
     }
 
     @Override
     @Transactional
     public RedisResponse ratingStatistics(UUID lodgeId) {
 
-        if (redisReviewCacheService.isCache(lodgeId)) {
-            log.info("캐싱 처리");
+        if (!redisReviewCacheService.isCache(lodgeId)) {
             List<RatingInternalResponse> ratingInternalResponseList = reviewRepository.ratingStatistics(
                 lodgeId);
             redisReviewCacheService.setDataToRedis(ratingInternalResponseList, lodgeId);
@@ -151,9 +160,9 @@ public class ReviewServiceImpl implements ReviewService {
         String totalScore = redisReviewCacheService.getTotalScoreFromRedis(lodgeId);
         String totalReview = redisReviewCacheService.getTotalReviewFromRedis(lodgeId);
 
-        log.info("캐싱정보 가져오기 : getRatingCount, totalScore: {}, totalReview: {}", ratingCount,
-            totalScore);
-        // TTL 로 데이터 일관성 관리 -> 증분방식 적용하여 데이터 일관성 관리
+        log.info("캐싱정보 가져오기 : getRatingCount{}, totalScore: {}, totalReview: {}", ratingCount,
+            totalScore, totalReview);
+
         return RedisMapper.toRedisResponse(ratingCount, totalScore, totalReview);
     }
 

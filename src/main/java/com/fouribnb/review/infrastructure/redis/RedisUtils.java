@@ -15,20 +15,18 @@ public class RedisUtils {
 
     private final RedisTemplate<String, String> redisTemplate;
 
-    public void setRatingCount(String redisKey, String field, String value) {
+    public void setHashData(String key, String field, String value) {
         HashOperations<String, Object, Object> hashOperations = redisTemplate.opsForHash();
-        hashOperations.put(redisKey, field, value);
-        redisTemplate.expire(redisKey,5, TimeUnit.MINUTES);
-        log.info("redisKey : {}, field : {}, value : {}", redisKey, field, value);
+        hashOperations.put(key, field, value);
+        redisTemplate.expire(key, 1, TimeUnit.HOURS);
     }
 
     public void setData(String key, String value) {
         redisTemplate.opsForValue().set(key, value);
-        redisTemplate.expire(key,5, TimeUnit.MINUTES);
-        log.info("setTotalScore key : {}, value : {}", key, value);
+        redisTemplate.expire(key, 1, TimeUnit.HOURS);
     }
 
-    public Map<Object, Object> getRatingCount(String key) {
+    public Map<Object, Object> getHashData(String key) {
         return redisTemplate.opsForHash().entries(key);
     }
 
@@ -36,8 +34,36 @@ public class RedisUtils {
         return redisTemplate.opsForValue().get(key);
     }
 
+    public void addHashData(String key, Long field) {
+        HashOperations<String, Object, Object> hashOperations = redisTemplate.opsForHash();
+        hashOperations.increment(key, String.valueOf(field), 1);
+    }
 
-    public void deleteData(String key) {
-        redisTemplate.delete(key);
+    public void addData(String key, Long rating) {
+        redisTemplate.opsForValue().increment(key, rating);
+
+    }
+
+    public void updateHashData(String key, Long beforeField, Long afterField) {
+        HashOperations<String, Object, Object> hashOperations = redisTemplate.opsForHash();
+        hashOperations.increment(key, String.valueOf(afterField), 1);
+        hashOperations.increment(key, String.valueOf(beforeField), -1);
+    }
+
+    public void updateData(String key, Long afterRating, Long beforeRating) {
+        if (afterRating > beforeRating) {
+            redisTemplate.opsForValue().increment(key, (afterRating - beforeRating));
+        } else if (beforeRating > afterRating) {
+            redisTemplate.opsForValue().decrement(key, (beforeRating - afterRating));
+        }
+    }
+
+    public void deleteHashData(String key, Long field) {
+        HashOperations<String, Object, Object> hashOperations = redisTemplate.opsForHash();
+        hashOperations.increment(key, String.valueOf(field), -1);
+    }
+
+    public void deleteData(String key, Long rating) {
+        redisTemplate.opsForValue().decrement(key, rating);
     }
 }
