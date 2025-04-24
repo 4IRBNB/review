@@ -41,7 +41,7 @@ public class RedisUtils {
 
     public void addData(String ratingCountKey, String totalScoreKey, String totalReviewKey,
         Long rating) {
-        List<Object> txResults = redisTemplate.execute(new SessionCallback<List<Object>>() {
+        redisTemplate.execute(new SessionCallback<List<Object>>() {
             @Override
             public List<Object> execute(RedisOperations operations) throws DataAccessException {
                 operations.multi();
@@ -58,7 +58,7 @@ public class RedisUtils {
     }
     public void updateData(String ratingCountKey, String totalScoreKey, Long beforeRating,
         Long afterRating) {
-        List<Object> txResults = redisTemplate.execute(new SessionCallback<List<Object>>() {
+        redisTemplate.execute(new SessionCallback<List<Object>>() {
             @Override
             public List<Object> execute(RedisOperations operations) throws DataAccessException {
                 operations.multi();
@@ -81,7 +81,7 @@ public class RedisUtils {
 
     public void deleteData(String ratingCountKey, String totalScoreKey, String totalReviewKey,
         Long rating) {
-        List<Object> txResults = redisTemplate.execute(new SessionCallback<List<Object>>() {
+        redisTemplate.execute(new SessionCallback<List<Object>>() {
             @Override
             public List<Object> execute(RedisOperations operations) throws DataAccessException {
                 operations.multi();
