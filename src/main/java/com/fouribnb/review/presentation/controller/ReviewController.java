@@ -114,17 +114,22 @@ public class ReviewController {
 
     // [별점 통계]
     @GetMapping("/lodge/{lodgeId}/statistics")
-    public BaseResponse<RatingResponse> ratingStatistics(@PathVariable UUID lodgeId) {
+//    public BaseResponse<RatingResponse> ratingStatistics(@PathVariable UUID lodgeId) {
+    public BaseResponse<RedisResponse> ratingStatistics(@PathVariable UUID lodgeId) {
 
         long startTime = System.currentTimeMillis();
         log.info("별점 통계 시작 : {}", startTime);
+
+//        RedisResponse redisResponse = reviewService.ratingStatistics(lodgeId);
 
         RedisResponse redisResponse = reviewService.ratingStatistics(lodgeId);
 
         long endTime = System.currentTimeMillis();
         log.info("별점 통계 끝 : {}", endTime);
 
-        log.info("==> 소요 시간 : {} ms",endTime-startTime);
-        return BaseResponse.SUCCESS(RedisDtoMapper.toRatingResponse(redisResponse), "별점 통계 성공");
+        log.info("==> 소요 시간 : {} ms", endTime - startTime);
+//        return BaseResponse.SUCCESS(RedisDtoMapper.toRatingResponse(redisResponse), "별점 통계 성공");
+        return BaseResponse.SUCCESS(redisResponse, "별점 통계 성공");
+
     }
 }
