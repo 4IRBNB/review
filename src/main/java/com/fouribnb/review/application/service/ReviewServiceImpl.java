@@ -150,21 +150,42 @@ public class ReviewServiceImpl implements ReviewService {
     @Transactional
     public RedisResponse ratingStatistics(UUID lodgeId) {
 
-        if (!redisReviewCacheService.isCache(lodgeId)) {
-            List<RatingInternalResponse> ratingInternalResponseList = reviewRepository.ratingStatistics(
-                lodgeId);
-            redisReviewCacheService.setDataToRedis(ratingInternalResponseList, lodgeId);
-        }
-        Map<Object, Object> ratingCount = redisReviewCacheService.getRatingCountFromRedis(
+        List<RatingInternalResponse> ratingInternalResponseList = reviewRepository.ratingStatistics(
             lodgeId);
-        String totalScore = redisReviewCacheService.getTotalScoreFromRedis(lodgeId);
-        String totalReview = redisReviewCacheService.getTotalReviewFromRedis(lodgeId);
 
-        log.info("캐싱정보 가져오기 : getRatingCount{}, totalScore: {}, totalReview: {}", ratingCount,
-            totalScore, totalReview);
+        Long totalScore = 0L;
+        for (int i = 0; i < ratingInternalResponseList.size(); i++) {
+            totalScore += (ratingInternalResponseList.get(i).count()
+                * ratingInternalResponseList.get(i)
+                .rating());
+        }
 
-        return RedisMapper.toRedisResponse(ratingCount, totalScore, totalReview);
+        Long totalReview = 0L;
+        for (int i = 0; i < ratingInternalResponseList.size(); i++) {
+            totalReview += ratingInternalResponseList.get(i).count();
+        }
+        log.info("ratingStatistics : {}, totalScore : {}, totalReview : {}",
+            ratingInternalResponseList, totalScore, totalReview);
+
+//        Map<Object, Object> ratingCount = redisReviewCacheService.getRatingCountFromRedis(
+//            lodgeId);
+//        String totalScore = redisReviewCacheService.getTotalScoreFromRedis(lodgeId);
+//        String totalReview = redisReviewCacheService.getTotalReviewFromRedis(lodgeId);
+
+//        if (!redisReviewCacheService.isCache(lodgeId)) {
+//            List<RatingInternalResponse> ratingInternalResponseList = reviewRepository.ratingStatistics(
+//                lodgeId);
+//            redisReviewCacheService.setDataToRedis(ratingInternalResponseList, lodgeId);
+//        }
+//        Map<Object, Object> ratingCount = redisReviewCacheService.getRatingCountFromRedis(
+//            lodgeId);
+//        String totalScore = redisReviewCacheService.getTotalScoreFromRedis(lodgeId);
+//        String totalReview = redisReviewCacheService.getTotalReviewFromRedis(lodgeId);
+//
+//        log.info("캐싱정보 가져오기 : getRatingCount{}, totalScore: {}, totalReview: {}", ratingCount,
+//            totalScore, totalReview);
+
+        return RedisMapper.toRedisResponse(ratingInternalResponseList, totalScore, totalReview);
     }
-
 
 }

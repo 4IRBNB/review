@@ -58,31 +58,24 @@ public class RedisReviewCacheService {
         return getTotalReviewFromRedis(lodgeId) != null;
     }
 
+
     public void addRating(UUID lodgeId, Long rating) {
         String ratingCountKey = "ratingCount:" + lodgeId;
         String totalScoreKey = "totalScore:" + lodgeId;
         String totalReviewKey = "totalReview:" + lodgeId;
-
-        redisUtils.addHashData(ratingCountKey, rating);
-        redisUtils.addData(totalScoreKey, rating);
-        redisUtils.addData(totalReviewKey, 1L);
+        redisUtils.addData(ratingCountKey, totalScoreKey, totalReviewKey, rating);
     }
 
     public void updateRating(UUID lodgeId, Long beforeRating, Long afterRating) {
         String ratingCountKey = "ratingCount:" + lodgeId;
         String totalScoreKey = "totalScore:" + lodgeId;
-
-        redisUtils.updateHashData(ratingCountKey, beforeRating, afterRating);
-        redisUtils.updateData(totalScoreKey, afterRating, beforeRating);
+        redisUtils.updateData(ratingCountKey, totalScoreKey, beforeRating, afterRating);
     }
 
     public void deleteRating(UUID lodgeId, Long rating) {
         String ratingCountKey = "ratingCount:" + lodgeId;
         String totalScoreKey = "totalScore:" + lodgeId;
         String totalReviewKey = "totalReview:" + lodgeId;
-
-        redisUtils.deleteHashData(ratingCountKey, rating);
-        redisUtils.deleteData(totalScoreKey,rating);
-        redisUtils.deleteData(totalReviewKey,1L);
+        redisUtils.deleteData(ratingCountKey, totalScoreKey, totalReviewKey, rating);
     }
 }
