@@ -104,3 +104,7 @@ tasks.withType(JavaCompile).configureEach {
 clean.doLast {
     file(querydslDir).deleteDir()
 }
+
+bootJar {
+    archiveFileName = 'review.jar'
+}
