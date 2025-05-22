@@ -80,18 +80,19 @@ public class ReviewServiceImpl implements ReviewService {
         return ReviewMapper.toReviewResponse(saved);
     }
 
+    // [리뷰 목록 조회]
     @Override
     public Page<ReviewInternalResponse> findReviewByLodgeId(UUID lodgeId, Pageable pageable) {
-        Page<Review> reviewPage = reviewRepository.getAllByLodgeId(lodgeId, pageable);
 
-        if (reviewPage.isEmpty()) {
+        // 숙소 ID로  리뷰 목록 조회
+        Page<Review> reviewsByLodgeId = reviewRepository.findAllByLodgeId(lodgeId, pageable);
+
+        // 리뷰가 없는 경우 예외처리
+        if (reviewsByLodgeId.isEmpty()) {
             throw new CustomException(CustomExceptionCode.REVIEW_NOT_FOUND);
         }
 
-        Page<ReviewInternalResponse> internalResponsePage = ReviewMapper.toReviewResponsePage(
-            reviewPage);
-
-        return internalResponsePage;
+        return ReviewMapper.toReviewResponsePage(reviewsByLodgeId);
     }
 
     @Override
