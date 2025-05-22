@@ -32,6 +32,7 @@ public class ReviewMapper {
         return internalResponse;
     }
 
+    // Entity -> Page<내부 Dto>
     public static Page<ReviewInternalResponse> toReviewResponsePage(Page<Review> review) {
         Page<ReviewInternalResponse> internalResponsePage = review.map(
             r -> ReviewInternalResponse.builder()
