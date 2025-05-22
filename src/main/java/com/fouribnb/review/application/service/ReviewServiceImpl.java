@@ -40,7 +40,7 @@ public class ReviewServiceImpl implements ReviewService {
 
     @Override
     @Transactional
-    public ReviewInternalResponse createReview(CreateReviewInternalRequest request) {
+    public ReviewInternalResponse addReview(CreateReviewInternalRequest request) {
 
         BaseResponse<List<ReservationResponse>> reservationResponsesPage = reservationClient.getReservationById(
             request.userId());
@@ -74,7 +74,7 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
     @Override
-    public Page<ReviewInternalResponse> getReviewsByLodgeId(UUID lodgeId, Pageable pageable) {
+    public Page<ReviewInternalResponse> findReviewByLodgeId(UUID lodgeId, Pageable pageable) {
         Page<Review> reviewPage = reviewRepository.getAllByLodgeId(lodgeId, pageable);
 
         if (reviewPage.isEmpty()) {
@@ -87,7 +87,7 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
     @Override
-    public Page<ReviewInternalResponse> getAllByUserId(Long userId, Pageable pageable) {
+    public Page<ReviewInternalResponse> findMyReview(Long userId, Pageable pageable) {
         Page<Review> reviewPage = reviewRepository.getAllByUserId(userId, pageable);
 
         if (reviewPage.isEmpty()) {
@@ -100,7 +100,7 @@ public class ReviewServiceImpl implements ReviewService {
 
     @Override
     @Transactional
-    public ReviewInternalResponse updateReview(UUID reviewId, UpdateReviewInternalRequest request) {
+    public ReviewInternalResponse modifyReview(UUID reviewId, UpdateReviewInternalRequest request) {
 
         Review review = reviewRepository.findById(reviewId)
             .orElseThrow(() -> new CustomException(CustomExceptionCode.REVIEW_NOT_FOUND));
@@ -121,7 +121,7 @@ public class ReviewServiceImpl implements ReviewService {
 
     @Override
     @Transactional
-    public void deleteReviewByUser(UUID reviewId, Long userId) {
+    public void removeReviewByUser(UUID reviewId, Long userId) {
 
         Review review = reviewRepository.findById(reviewId)
             .orElseThrow(() -> new CustomException(CustomExceptionCode.REVIEW_NOT_FOUND));
@@ -136,7 +136,7 @@ public class ReviewServiceImpl implements ReviewService {
 
     @Override
     @Transactional
-    public void deleteReviewByAdmin(UUID reviewId, Long userId) {
+    public void removeReviewByAdmin(UUID reviewId, Long userId) {
 
         Review review = reviewRepository.findById(reviewId)
             .orElseThrow(() -> new CustomException(CustomExceptionCode.REVIEW_NOT_FOUND));
@@ -148,7 +148,7 @@ public class ReviewServiceImpl implements ReviewService {
 
     @Override
     @Transactional
-    public RedisResponse ratingStatistics(UUID lodgeId) {
+    public RedisResponse getRatingStatistics(UUID lodgeId) {
 
         List<RatingInternalResponse> ratingInternalResponseList = reviewRepository.ratingStatistics(
             lodgeId);

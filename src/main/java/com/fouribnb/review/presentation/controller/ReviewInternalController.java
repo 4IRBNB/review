@@ -25,7 +25,7 @@ public class ReviewInternalController {
     public BaseResponse<Object> deleteReviewByAdmin(@PathVariable UUID reviewId,
         @AuthenticatedUser UserInfo user) {
 
-        reviewService.deleteReviewByAdmin(reviewId, user.getUserId());
+        reviewService.removeReviewByAdmin(reviewId, user.getUserId());
 
         return BaseResponse.SUCCESS(null, "리뷰 삭제 성공", 204);
     }
