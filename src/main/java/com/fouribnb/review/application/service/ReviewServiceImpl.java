@@ -38,36 +38,43 @@ public class ReviewServiceImpl implements ReviewService {
     private final RedisReviewCacheService redisReviewCacheService;
     private final ReservationClient reservationClient;
 
+    // [리뷰 작성]
     @Override
     @Transactional
     public ReviewInternalResponse addReview(CreateReviewInternalRequest request) {
 
-        BaseResponse<List<ReservationResponse>> reservationResponsesPage = reservationClient.getReservationById(
+        // 예약 서비스에서 유저 아이디로 해당 유저의 예약 정보 가져오기
+        BaseResponse<List<ReservationResponse>> userReservations = reservationClient.getReservationById(
             request.userId());
 
+        // 예약 정보 유효 검사
         Review review = null;
-
         UUID reservationId = null;
+        boolean isValidReservation = false;
 
-        for (ReservationResponse reservationResponse : reservationResponsesPage.getData()) {
+        for (ReservationResponse reservationResponse : userReservations.getData()) {
             if (reservationResponse.lodgeId().equals(request.lodgeId())
                 && reservationResponse.reservationStatus().equals("COMPLETED")) {
                 review = ReviewMapper.toReviewEntity(request, reservationResponse.id());
                 reservationId = reservationResponse.id();
+                isValidReservation = true;
                 break;
-            } else {
-                throw new CustomException(CustomExceptionCode.RESERVATION_NOT_FOUND);
             }
         }
 
-        log.info("해당 예약으로 작성된 리뷰 존재 : {}", reviewRepository.existsByReservationId(reservationId));
+        if (!isValidReservation) {
+            throw new CustomException(CustomExceptionCode.RESERVATION_NOT_FOUND);
+        }
 
+        // 해당 예약 아이디로 작성된 리뷰 존재 여부 확인
         if (reviewRepository.existsByReservationId(reservationId)) {
             throw new CustomException(CustomExceptionCode.REVIEW_EXIST);
-
         }
+
+        // 저장
         Review saved = reviewRepository.save(review);
 
+        // Redis를 이용한 증분처리
         redisReviewCacheService.addRating(saved.getLodgeId(), saved.getRating());
 
         return ReviewMapper.toReviewResponse(saved);
@@ -81,7 +88,8 @@ public class ReviewServiceImpl implements ReviewService {
             throw new CustomException(CustomExceptionCode.REVIEW_NOT_FOUND);
         }
 
-        Page<ReviewInternalResponse> internalResponsePage = ReviewMapper.toReviewResponsePage(reviewPage);
+        Page<ReviewInternalResponse> internalResponsePage = ReviewMapper.toReviewResponsePage(
+            reviewPage);
 
         return internalResponsePage;
     }
@@ -94,7 +102,8 @@ public class ReviewServiceImpl implements ReviewService {
             throw new CustomException(CustomExceptionCode.REVIEW_NOT_FOUND);
         }
 
-        Page<ReviewInternalResponse> internalResponsePage = ReviewMapper.toReviewResponsePage(reviewPage);
+        Page<ReviewInternalResponse> internalResponsePage = ReviewMapper.toReviewResponsePage(
+            reviewPage);
         return internalResponsePage;
     }
 
@@ -185,7 +194,8 @@ public class ReviewServiceImpl implements ReviewService {
 //        log.info("캐싱정보 가져오기 : getRatingCount{}, totalScore: {}, totalReview: {}", ratingCount,
 //            totalScore, totalReview);
 
-        return RedisMapper.toRedisReviewResponse(ratingInternalResponseList, totalScore, totalReview);
+        return RedisMapper.toRedisReviewResponse(ratingInternalResponseList, totalScore,
+            totalReview);
     }
 
 }
