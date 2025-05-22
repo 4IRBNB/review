@@ -9,7 +9,7 @@ import org.springframework.data.domain.Page;
 public class ReviewMapper {
 
     // 내부 Dto -> Entity
-    public static Review toEntity(CreateReviewInternalRequest request, UUID reservationId) {
+    public static Review toReviewEntity(CreateReviewInternalRequest request, UUID reservationId) {
         return new Review(
             request.userId(),
             request.lodgeId(),
@@ -20,7 +20,7 @@ public class ReviewMapper {
     }
 
     // Entity -> 내부 Dto
-    public static ReviewInternalResponse toResponse(Review review) {
+    public static ReviewInternalResponse toReviewResponse(Review review) {
         ReviewInternalResponse internalResponse = ReviewInternalResponse.builder()
             .reviewId(review.getReviewId())
             .userId(review.getUserId())
@@ -32,15 +32,16 @@ public class ReviewMapper {
         return internalResponse;
     }
 
-    public static Page<ReviewInternalResponse> toResponsePage(Page<Review> review) {
-        Page<ReviewInternalResponse> internalResponsePage = review.map(r -> ReviewInternalResponse.builder()
-            .reviewId(r.getReviewId())
-            .lodgeId(r.getLodgeId())
-            .userId(r.getUserId())
-            .content(r.getContent())
-            .rating(r.getRating())
-            .deletedBy(r.getDeletedBy())
-            .build());
+    public static Page<ReviewInternalResponse> toReviewResponsePage(Page<Review> review) {
+        Page<ReviewInternalResponse> internalResponsePage = review.map(
+            r -> ReviewInternalResponse.builder()
+                .reviewId(r.getReviewId())
+                .lodgeId(r.getLodgeId())
+                .userId(r.getUserId())
+                .content(r.getContent())
+                .rating(r.getRating())
+                .deletedBy(r.getDeletedBy())
+                .build());
         return internalResponsePage;
     }
 

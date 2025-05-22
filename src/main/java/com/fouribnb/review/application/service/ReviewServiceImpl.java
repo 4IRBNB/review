@@ -52,7 +52,7 @@ public class ReviewServiceImpl implements ReviewService {
         for (ReservationResponse reservationResponse : reservationResponsesPage.getData()) {
             if (reservationResponse.lodgeId().equals(request.lodgeId())
                 && reservationResponse.reservationStatus().equals("COMPLETED")) {
-                review = ReviewMapper.toEntity(request, reservationResponse.id());
+                review = ReviewMapper.toReviewEntity(request, reservationResponse.id());
                 reservationId = reservationResponse.id();
                 break;
             } else {
@@ -70,7 +70,7 @@ public class ReviewServiceImpl implements ReviewService {
 
         redisReviewCacheService.addRating(saved.getLodgeId(), saved.getRating());
 
-        return ReviewMapper.toResponse(saved);
+        return ReviewMapper.toReviewResponse(saved);
     }
 
     @Override
@@ -81,7 +81,7 @@ public class ReviewServiceImpl implements ReviewService {
             throw new CustomException(CustomExceptionCode.REVIEW_NOT_FOUND);
         }
 
-        Page<ReviewInternalResponse> internalResponsePage = ReviewMapper.toResponsePage(reviewPage);
+        Page<ReviewInternalResponse> internalResponsePage = ReviewMapper.toReviewResponsePage(reviewPage);
 
         return internalResponsePage;
     }
@@ -94,7 +94,7 @@ public class ReviewServiceImpl implements ReviewService {
             throw new CustomException(CustomExceptionCode.REVIEW_NOT_FOUND);
         }
 
-        Page<ReviewInternalResponse> internalResponsePage = ReviewMapper.toResponsePage(reviewPage);
+        Page<ReviewInternalResponse> internalResponsePage = ReviewMapper.toReviewResponsePage(reviewPage);
         return internalResponsePage;
     }
 
@@ -116,7 +116,7 @@ public class ReviewServiceImpl implements ReviewService {
             throw new CustomException(CustomExceptionCode.FORBIDDEN);
         }
 
-        return ReviewMapper.toResponse(review);
+        return ReviewMapper.toReviewResponse(review);
     }
 
     @Override
@@ -185,7 +185,7 @@ public class ReviewServiceImpl implements ReviewService {
 //        log.info("캐싱정보 가져오기 : getRatingCount{}, totalScore: {}, totalReview: {}", ratingCount,
 //            totalScore, totalReview);
 
-        return RedisMapper.toRedisResponse(ratingInternalResponseList, totalScore, totalReview);
+        return RedisMapper.toRedisReviewResponse(ratingInternalResponseList, totalScore, totalReview);
     }
 
 }

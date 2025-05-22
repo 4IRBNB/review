@@ -16,7 +16,7 @@ public class RedisMapper {
 //
 //        return redisResponse;
 //    }
-    public static RedisResponse toRedisResponse(List<?> ratingCount, Long totalScore,
+    public static RedisResponse toRedisReviewResponse(List<?> ratingCount, Long totalScore,
         Long totalReview) {
         RedisResponse redisResponse = RedisResponse.builder()
             .ratingCount(ratingCount)
