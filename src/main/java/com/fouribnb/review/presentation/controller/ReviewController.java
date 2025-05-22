@@ -43,7 +43,7 @@ public class ReviewController {
     // [리뷰 작성]
     @RoleCheck("CUSTOMER")
     @PostMapping
-    public BaseResponse<ReviewResponse> createReview(
+    public BaseResponse<ReviewResponse> reviewCreate(
         @Valid @RequestBody CreateReviewRequest request, @AuthenticatedUser UserInfo user) {
         CreateReviewInternalRequest internalRequest = ReviewDtoMapper.toCreateInternalDto(request,
             user.getUserId());
@@ -55,7 +55,7 @@ public class ReviewController {
 
     // [리뷰 목록 조회]
     @GetMapping("/lodge/{lodgeId}")
-    public BaseResponse<Page<ReviewResponse>> getReviewsByLodgeId(@PathVariable UUID lodgeId,
+    public BaseResponse<Page<ReviewResponse>> reviewList(@PathVariable UUID lodgeId,
         @PageableDefault(
             size = 10,
             page = 0,
@@ -71,7 +71,7 @@ public class ReviewController {
 
     // [내 리뷰 조회]
     @GetMapping("/me")
-    public BaseResponse<Page<ReviewResponse>> getReviewsByUser(@AuthenticatedUser UserInfo user,
+    public BaseResponse<Page<ReviewResponse>> myReviewList(@AuthenticatedUser UserInfo user,
         @PageableDefault(
             size = 10,
             page = 0
@@ -88,7 +88,7 @@ public class ReviewController {
     // [리뷰 수정]
     @RoleCheck("CUSTOMER")
     @PutMapping("/{reviewId}")
-    public BaseResponse<ReviewResponse> updateReview(@PathVariable UUID reviewId,
+    public BaseResponse<ReviewResponse> reviewModify(@PathVariable UUID reviewId,
         @Valid @RequestBody UpdateReviewRequest request, @AuthenticatedUser UserInfo user) {
 
         UpdateReviewInternalRequest internalRequest = ReviewDtoMapper.toUpdateInternalDto(request,
@@ -104,7 +104,7 @@ public class ReviewController {
     // [리뷰 삭제]
     @RoleCheck("CUSTOMER")
     @DeleteMapping("/{reviewId}")
-    public BaseResponse<Object> deleteReview(@PathVariable UUID reviewId,
+    public BaseResponse<Object> reviewRemove(@PathVariable UUID reviewId,
         @AuthenticatedUser UserInfo user) {
 
         reviewService.deleteReviewByUser(reviewId, user.getUserId());
@@ -115,7 +115,7 @@ public class ReviewController {
     // [별점 통계]
     @GetMapping("/lodge/{lodgeId}/statistics")
 //    public BaseResponse<RatingResponse> ratingStatistics(@PathVariable UUID lodgeId) {
-    public BaseResponse<RedisResponse> ratingStatistics(@PathVariable UUID lodgeId) {
+    public BaseResponse<RedisResponse> reviewRatingStatistics(@PathVariable UUID lodgeId) {
 
         long startTime = System.currentTimeMillis();
         log.info("별점 통계 시작 : {}", startTime);
