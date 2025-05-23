@@ -33,8 +33,8 @@ public class ReviewJpaRepositoryAdapter implements ReviewRepository {
     }
 
     @Override
-    public Page<Review> getAllByUserId(Long userId, Pageable pageable) {
-        return reviewJpaRepository.getAllByUserId(userId, pageable);
+    public Page<Review> findAllByUserId(Long userId, Pageable pageable) {
+        return reviewJpaRepository.findAllByUserId(userId, pageable);
     }
 
     @Override

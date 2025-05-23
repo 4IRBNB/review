@@ -14,7 +14,7 @@ public interface ReviewRepository {
 
     Page<Review> findAllByLodgeId(UUID lodgeId, Pageable pageable);
 
-    Page<Review> getAllByUserId(Long userId, Pageable pageable);
+    Page<Review> findAllByUserId(Long userId, Pageable pageable);
 
     Optional<Review> findById(UUID reviewId);
 
