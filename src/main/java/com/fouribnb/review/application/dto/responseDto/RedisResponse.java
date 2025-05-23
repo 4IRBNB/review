@@ -8,9 +8,7 @@ import lombok.Builder;
 public record RedisResponse(
 //    Map<Object,Object> ratingCount,
     List<?> ratingCount,
-    Long totalScore,
-    Long totalReview,
-    Long averageRating
+    String averageRating
 ) {
 
 }

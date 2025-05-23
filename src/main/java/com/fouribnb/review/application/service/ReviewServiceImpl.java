@@ -186,11 +186,11 @@ public class ReviewServiceImpl implements ReviewService {
             totalReview += ratingStatistics.get(i).count();
         }
 
-        Long averageRating = totalReview / totalScore;
+        double averageRating = totalScore.doubleValue() / totalReview.doubleValue();
+        String averageRatingStr = String.format("%.2f", averageRating);
 
         // 평균 별점
-        log.info("각 별점별 리뷰 갯수 : {}, 평균 별점 : {}",
-            ratingStatistics, averageRating);
+        log.info("각 별점별 리뷰 갯수 : {}, 평균 별점 : {}", ratingStatistics, averageRatingStr);
 
 //        Map<Object, Object> ratingCount = redisReviewCacheService.getRatingCountFromRedis(
 //            lodgeId);
@@ -210,7 +210,7 @@ public class ReviewServiceImpl implements ReviewService {
 //        log.info("캐싱정보 가져오기 : getRatingCount{}, totalScore: {}, totalReview: {}", ratingCount,
 //            totalScore, totalReview);
 
-        return RedisMapper.toRedisReviewResponse(ratingStatistics, averageRating);
+        return RedisMapper.toRedisReviewResponse(ratingStatistics, averageRatingStr);
     }
 
 }

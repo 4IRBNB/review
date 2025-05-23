@@ -17,7 +17,7 @@ public class RedisMapper {
 //
 //        return redisResponse;
 //    }
-    public static RedisResponse toRedisReviewResponse(List<?> ratingCount, Long averageRating) {
+    public static RedisResponse toRedisReviewResponse(List<?> ratingCount, String averageRating) {
         RedisResponse redisResponse = RedisResponse.builder()
             .ratingCount(ratingCount)
             .averageRating(averageRating)
