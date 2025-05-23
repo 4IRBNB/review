@@ -133,13 +133,15 @@ public class ReviewServiceImpl implements ReviewService {
         return ReviewMapper.toReviewResponse(review);
     }
 
+    // [리뷰 삭제]
     @Override
     @Transactional
     public void removeReviewByUser(UUID reviewId, Long userId) {
-
+        // 해당 리뷰가 없는 경우 예외처리
         Review review = reviewRepository.findById(reviewId)
             .orElseThrow(() -> new CustomException(CustomExceptionCode.REVIEW_NOT_FOUND));
 
+        // 아이디 일치 -> 리뷰 삭제 및 별점 증분처리, 불일치 -> 예외처리
         if (userId.equals(review.getUserId())) {
             review.setDeleted(userId, LocalDateTime.now());
             redisReviewCacheService.deleteRating(review.getLodgeId(), review.getRating());
