@@ -43,7 +43,7 @@ public class ReviewJpaRepositoryAdapter implements ReviewRepository {
     }
 
     @Override
-    public List<RatingInternalResponse> ratingStatistics(UUID lodgeId) {
+    public List<RatingInternalResponse> findRatingStatistics(UUID lodgeId) {
         return queryFactory
             .select(Projections.constructor(RatingInternalResponse.class,
                 review.rating.as("rating"),

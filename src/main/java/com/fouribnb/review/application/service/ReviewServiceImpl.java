@@ -166,26 +166,31 @@ public class ReviewServiceImpl implements ReviewService {
         redisReviewCacheService.deleteRating(review.getLodgeId(), review.getRating());
     }
 
+    // [별점 통계]
     @Override
     @Transactional
     public RedisResponse getRatingStatistics(UUID lodgeId) {
 
-        List<RatingInternalResponse> ratingInternalResponseList = reviewRepository.ratingStatistics(
+        // 별점 통계 데이터 조회
+        List<RatingInternalResponse> ratingStatistics = reviewRepository.findRatingStatistics(
             lodgeId);
 
+        // 평균 별점 계산 로직 : 전체 별점 합계 / 전체 리뷰 갯수
         Long totalScore = 0L;
-        for (int i = 0; i < ratingInternalResponseList.size(); i++) {
-            totalScore += (ratingInternalResponseList.get(i).count()
-                * ratingInternalResponseList.get(i)
-                .rating());
+        for (int i = 0; i < ratingStatistics.size(); i++) {
+            totalScore += (ratingStatistics.get(i).count() * ratingStatistics.get(i).rating());
         }
 
         Long totalReview = 0L;
-        for (int i = 0; i < ratingInternalResponseList.size(); i++) {
-            totalReview += ratingInternalResponseList.get(i).count();
+        for (int i = 0; i < ratingStatistics.size(); i++) {
+            totalReview += ratingStatistics.get(i).count();
         }
-        log.info("ratingStatistics : {}, totalScore : {}, totalReview : {}",
-            ratingInternalResponseList, totalScore, totalReview);
+
+        Long averageRating = totalReview / totalScore;
+
+        // 평균 별점
+        log.info("각 별점별 리뷰 갯수 : {}, 평균 별점 : {}",
+            ratingStatistics, averageRating);
 
 //        Map<Object, Object> ratingCount = redisReviewCacheService.getRatingCountFromRedis(
 //            lodgeId);
@@ -205,7 +210,7 @@ public class ReviewServiceImpl implements ReviewService {
 //        log.info("캐싱정보 가져오기 : getRatingCount{}, totalScore: {}, totalReview: {}", ratingCount,
 //            totalScore, totalReview);
 
-        return RedisMapper.toRedisReviewResponse(ratingInternalResponseList, totalScore,
+        return RedisMapper.toRedisReviewResponse(ratingStatistics, totalScore,
             totalReview);
     }
 
