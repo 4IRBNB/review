@@ -23,6 +23,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -48,7 +49,7 @@ public class ReviewController {
         CreateReviewInternalRequest internalRequest = ReviewDtoMapper.toCreateInternalDto(request,
             user.getUserId());
 
-        ReviewInternalResponse internalResponse = reviewService.createReview(internalRequest);
+        ReviewInternalResponse internalResponse = reviewService.addReview(internalRequest);
 
         return BaseResponse.SUCCESS(ReviewDtoMapper.toResponse(internalResponse), "리뷰 작성 성공");
     }
@@ -62,7 +63,7 @@ public class ReviewController {
             direction = Direction.ASC
         ) Pageable pageable) {
 
-        Page<ReviewInternalResponse> internalResponse = reviewService.getReviewsByLodgeId(lodgeId,
+        Page<ReviewInternalResponse> internalResponse = reviewService.findReviewByLodgeId(lodgeId,
             pageable);
 
         return BaseResponse.SUCCESS(ReviewDtoMapper.toResponsePage(internalResponse),
@@ -76,7 +77,7 @@ public class ReviewController {
             size = 10,
             page = 0
         ) Pageable pageable) {
-        Page<ReviewInternalResponse> internalResponsePage = reviewService.getAllByUserId(
+        Page<ReviewInternalResponse> internalResponsePage = reviewService.findMyReview(
             user.getUserId(),
             pageable);
 
@@ -94,7 +95,7 @@ public class ReviewController {
         UpdateReviewInternalRequest internalRequest = ReviewDtoMapper.toUpdateInternalDto(request,
             user.getUserId());
 
-        ReviewInternalResponse internalResponse = reviewService.updateReview(reviewId,
+        ReviewInternalResponse internalResponse = reviewService.modifyReview(reviewId,
             internalRequest);
 
         return BaseResponse.SUCCESS(ReviewDtoMapper.toResponse(internalResponse),
@@ -104,25 +105,25 @@ public class ReviewController {
     // [리뷰 삭제]
     @RoleCheck("CUSTOMER")
     @DeleteMapping("/{reviewId}")
-    public BaseResponse<Object> deleteReview(@PathVariable UUID reviewId,
+    public ResponseEntity<Object> deleteReview(@PathVariable UUID reviewId,
         @AuthenticatedUser UserInfo user) {
 
-        reviewService.deleteReviewByUser(reviewId, user.getUserId());
+        reviewService.removeReviewByUser(reviewId, user.getUserId());
 
-        return BaseResponse.SUCCESS(null, "리뷰 삭제 성공", 204);
+        return ResponseEntity.noContent().build();
     }
 
     // [별점 통계]
     @GetMapping("/lodge/{lodgeId}/statistics")
 //    public BaseResponse<RatingResponse> ratingStatistics(@PathVariable UUID lodgeId) {
-    public BaseResponse<RedisResponse> ratingStatistics(@PathVariable UUID lodgeId) {
+    public BaseResponse<RedisResponse> getReviewRatingStatistics(@PathVariable UUID lodgeId) {
 
         long startTime = System.currentTimeMillis();
         log.info("별점 통계 시작 : {}", startTime);
 
 //        RedisResponse redisResponse = reviewService.ratingStatistics(lodgeId);
 
-        RedisResponse redisResponse = reviewService.ratingStatistics(lodgeId);
+        RedisResponse redisResponse = reviewService.getRatingStatistics(lodgeId);
 
         long endTime = System.currentTimeMillis();
         log.info("별점 통계 끝 : {}", endTime);
