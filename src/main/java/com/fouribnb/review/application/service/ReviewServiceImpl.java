@@ -110,15 +110,17 @@ public class ReviewServiceImpl implements ReviewService {
         return ReviewMapper.toReviewResponsePage(reviewsByUserId);
     }
 
+    // [리뷰 수정]
     @Override
     @Transactional
     public ReviewInternalResponse modifyReview(UUID reviewId, UpdateReviewInternalRequest request) {
 
+        // 해당 리뷰가 없는 경우 예외처리
         Review review = reviewRepository.findById(reviewId)
             .orElseThrow(() -> new CustomException(CustomExceptionCode.REVIEW_NOT_FOUND));
 
+        // 리뷰 수정 및 별점 통계 증분 처리, 아이디 불일치시 예외처리
         Long beforeRating = review.getRating();
-        log.info("수정 전 별점 : {}", beforeRating);
 
         if (Objects.equals(review.getUserId(), request.userId())) {
             review.updateReview(request.content(), request.rating());
