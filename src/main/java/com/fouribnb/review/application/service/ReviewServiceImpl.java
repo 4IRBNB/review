@@ -150,15 +150,19 @@ public class ReviewServiceImpl implements ReviewService {
         }
     }
 
+    // [관리자 권한 리뷰 삭제]
     @Override
     @Transactional
     public void removeReviewByAdmin(UUID reviewId, Long userId) {
 
+        // 해당 리뷰가 없는 경우 예외처리
         Review review = reviewRepository.findById(reviewId)
             .orElseThrow(() -> new CustomException(CustomExceptionCode.REVIEW_NOT_FOUND));
 
+        // 리뷰 삭제
         review.setDeleted(userId, LocalDateTime.now());
 
+        // 별점 증분처리
         redisReviewCacheService.deleteRating(review.getLodgeId(), review.getRating());
     }
 
