@@ -9,7 +9,8 @@ public record RedisResponse(
 //    Map<Object,Object> ratingCount,
     List<?> ratingCount,
     Long totalScore,
-    Long totalReview
+    Long totalReview,
+    Long averageRating
 ) {
 
 }

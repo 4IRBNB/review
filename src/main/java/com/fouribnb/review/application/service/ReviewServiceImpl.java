@@ -210,8 +210,7 @@ public class ReviewServiceImpl implements ReviewService {
 //        log.info("캐싱정보 가져오기 : getRatingCount{}, totalScore: {}, totalReview: {}", ratingCount,
 //            totalScore, totalReview);
 
-        return RedisMapper.toRedisReviewResponse(ratingStatistics, totalScore,
-            totalReview);
+        return RedisMapper.toRedisReviewResponse(ratingStatistics, averageRating);
     }
 
 }
