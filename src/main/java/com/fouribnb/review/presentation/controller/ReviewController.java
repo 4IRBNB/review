@@ -23,6 +23,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -104,12 +105,12 @@ public class ReviewController {
     // [리뷰 삭제]
     @RoleCheck("CUSTOMER")
     @DeleteMapping("/{reviewId}")
-    public BaseResponse<Object> deleteReview(@PathVariable UUID reviewId,
+    public ResponseEntity<Object> deleteReview(@PathVariable UUID reviewId,
         @AuthenticatedUser UserInfo user) {
 
         reviewService.removeReviewByUser(reviewId, user.getUserId());
 
-        return BaseResponse.SUCCESS(null, "리뷰 삭제 성공", 204);
+        return ResponseEntity.noContent().build();
     }
 
     // [별점 통계]
