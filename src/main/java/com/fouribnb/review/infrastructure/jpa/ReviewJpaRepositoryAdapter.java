@@ -28,13 +28,13 @@ public class ReviewJpaRepositoryAdapter implements ReviewRepository {
     }
 
     @Override
-    public Page<Review> getAllByLodgeId(UUID lodgeId, Pageable pageable) {
-        return reviewJpaRepository.getAllByLodgeId(lodgeId, pageable);
+    public Page<Review> findAllByLodgeId(UUID lodgeId, Pageable pageable) {
+        return reviewJpaRepository.findAllByLodgeId(lodgeId, pageable);
     }
 
     @Override
-    public Page<Review> getAllByUserId(Long userId, Pageable pageable) {
-        return reviewJpaRepository.getAllByUserId(userId, pageable);
+    public Page<Review> findAllByUserId(Long userId, Pageable pageable) {
+        return reviewJpaRepository.findAllByUserId(userId, pageable);
     }
 
     @Override
@@ -43,7 +43,7 @@ public class ReviewJpaRepositoryAdapter implements ReviewRepository {
     }
 
     @Override
-    public List<RatingInternalResponse> ratingStatistics(UUID lodgeId) {
+    public List<RatingInternalResponse> findRatingStatistics(UUID lodgeId) {
         return queryFactory
             .select(Projections.constructor(RatingInternalResponse.class,
                 review.rating.as("rating"),

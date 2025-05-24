@@ -10,17 +10,17 @@ import org.springframework.data.domain.Pageable;
 
 public interface ReviewService {
 
-    ReviewInternalResponse createReview(CreateReviewInternalRequest request);
+    ReviewInternalResponse addReview(CreateReviewInternalRequest request);
 
-    Page<ReviewInternalResponse> getReviewsByLodgeId(UUID lodgeId,Pageable pageable);
+    Page<ReviewInternalResponse> findReviewByLodgeId(UUID lodgeId,Pageable pageable);
 
-    Page<ReviewInternalResponse> getAllByUserId(Long userId,Pageable pageable);
+    Page<ReviewInternalResponse> findMyReview(Long userId,Pageable pageable);
 
-    ReviewInternalResponse updateReview(UUID reviewId, UpdateReviewInternalRequest request);
+    ReviewInternalResponse modifyReview(UUID reviewId, UpdateReviewInternalRequest request);
 
-    void deleteReviewByUser(UUID reviewId, Long userId);
+    void removeReviewByUser(UUID reviewId, Long userId);
 
-    void deleteReviewByAdmin(UUID reviewId, Long userId);
+    void removeReviewByAdmin(UUID reviewId, Long userId);
 
-    RedisResponse ratingStatistics(UUID lodgeId);
+    RedisResponse getRatingStatistics(UUID lodgeId);
 }

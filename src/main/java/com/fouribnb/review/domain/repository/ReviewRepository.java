@@ -12,13 +12,13 @@ public interface ReviewRepository {
 
     Review save(Review review);
 
-    Page<Review> getAllByLodgeId(UUID lodgeId, Pageable pageable);
+    Page<Review> findAllByLodgeId(UUID lodgeId, Pageable pageable);
 
-    Page<Review> getAllByUserId(Long userId, Pageable pageable);
+    Page<Review> findAllByUserId(Long userId, Pageable pageable);
 
     Optional<Review> findById(UUID reviewId);
 
-    List<RatingInternalResponse> ratingStatistics(UUID lodgeId);
+    List<RatingInternalResponse> findRatingStatistics(UUID lodgeId);
 
     boolean existsByReservationId(UUID reservationId);
 }

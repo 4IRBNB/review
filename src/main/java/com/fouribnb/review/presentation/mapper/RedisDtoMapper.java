@@ -18,8 +18,6 @@ public class RedisDtoMapper {
     public static RatingResponse toRatingResponse(RedisResponse redisResponse) {
         RatingResponse ratingResponse = RatingResponse.builder()
             .ratingCount(redisResponse.ratingCount())
-            .totalScore(redisResponse.totalScore())
-            .totalReview(redisResponse.totalReview())
             .build();
 
         return ratingResponse;

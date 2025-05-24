@@ -12,30 +12,29 @@ spring:
     driver-class-name: org.postgresql.Driver
     username: ${POSTGRES_USER}
     password: ${POSTGRES_PASSWORD}
-    url: jdbc:postgresql://team26.cxqqm2i6ohrd.ap-northeast-2.rds.amazonaws.com:5432/${POSTGRES_DB}?currentSchema=reviews
+    url: jdbc:postgresql://localhost:${POSTGRES_PORT}/${POSTGRES_DB}
   jpa:
     hibernate:
       ddl-auto: update
     properties:
       hibernate:
-        default_schema: reviews
         dialect: org.hibernate.dialect.PostgreSQLDialect
         show_sql: true
         format_sql: true
   data:
     redis:
-      host: team26redis-3bjj75.serverless.apn2.cache.amazonaws.com
-      port: ${REDIS_PORT}
+      host: localhost
+      port: ${REDIS_BINDING_PORT}
 
 reservation:
   service:
     url: http://localhost:${RESERVATION_SERVICE_PORT}
 
 
-eureka:
-  client:
-    service-url:
-      defaultZone: http://43.203.174.245:19090/eureka/
+#eureka:
+#  client:
+#    service-url:
+#      defaultZone: http://43.203.174.245:19090/eureka/
 
 message: "default message" # config server? ???? ?? ?
 

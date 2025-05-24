@@ -38,75 +38,89 @@ public class ReviewServiceImpl implements ReviewService {
     private final RedisReviewCacheService redisReviewCacheService;
     private final ReservationClient reservationClient;
 
+    // [리뷰 작성]
     @Override
     @Transactional
-    public ReviewInternalResponse createReview(CreateReviewInternalRequest request) {
+    public ReviewInternalResponse addReview(CreateReviewInternalRequest request) {
 
-        BaseResponse<List<ReservationResponse>> reservationResponsesPage = reservationClient.getReservationById(
+        // 예약 서비스에서 유저 아이디로 해당 유저의 예약 정보 가져오기
+        BaseResponse<List<ReservationResponse>> userReservations = reservationClient.getReservationById(
             request.userId());
 
+        // 예약 정보 유효 검사
         Review review = null;
-
         UUID reservationId = null;
+        boolean isValidReservation = false;
 
-        for (ReservationResponse reservationResponse : reservationResponsesPage.getData()) {
+        for (ReservationResponse reservationResponse : userReservations.getData()) {
             if (reservationResponse.lodgeId().equals(request.lodgeId())
                 && reservationResponse.reservationStatus().equals("COMPLETED")) {
-                review = ReviewMapper.toEntity(request, reservationResponse.id());
+                review = ReviewMapper.toReviewEntity(request, reservationResponse.id());
                 reservationId = reservationResponse.id();
+                isValidReservation = true;
                 break;
-            } else {
-                throw new CustomException(CustomExceptionCode.RESERVATION_NOT_FOUND);
             }
         }
 
-        log.info("해당 예약으로 작성된 리뷰 존재 : {}", reviewRepository.existsByReservationId(reservationId));
+        if (!isValidReservation) {
+            throw new CustomException(CustomExceptionCode.RESERVATION_NOT_FOUND);
+        }
 
+        // 해당 예약 아이디로 작성된 리뷰 존재 여부 확인
         if (reviewRepository.existsByReservationId(reservationId)) {
             throw new CustomException(CustomExceptionCode.REVIEW_EXIST);
-
         }
+
+        // 저장
         Review saved = reviewRepository.save(review);
 
+        // Redis를 이용한 증분처리
         redisReviewCacheService.addRating(saved.getLodgeId(), saved.getRating());
 
-        return ReviewMapper.toResponse(saved);
+        return ReviewMapper.toReviewResponse(saved);
     }
 
+    // [리뷰 목록 조회]
     @Override
-    public Page<ReviewInternalResponse> getReviewsByLodgeId(UUID lodgeId, Pageable pageable) {
-        Page<Review> reviewPage = reviewRepository.getAllByLodgeId(lodgeId, pageable);
+    public Page<ReviewInternalResponse> findReviewByLodgeId(UUID lodgeId, Pageable pageable) {
 
-        if (reviewPage.isEmpty()) {
+        // 숙소 ID로  리뷰 목록 조회
+        Page<Review> reviewsByLodgeId = reviewRepository.findAllByLodgeId(lodgeId, pageable);
+
+        // 리뷰가 없는 경우 예외처리
+        if (reviewsByLodgeId.isEmpty()) {
             throw new CustomException(CustomExceptionCode.REVIEW_NOT_FOUND);
         }
 
-        Page<ReviewInternalResponse> internalResponsePage = ReviewMapper.toResponsePage(reviewPage);
-
-        return internalResponsePage;
+        return ReviewMapper.toReviewResponsePage(reviewsByLodgeId);
     }
 
+    // [내 리뷰 조회]
     @Override
-    public Page<ReviewInternalResponse> getAllByUserId(Long userId, Pageable pageable) {
-        Page<Review> reviewPage = reviewRepository.getAllByUserId(userId, pageable);
+    public Page<ReviewInternalResponse> findMyReview(Long userId, Pageable pageable) {
 
-        if (reviewPage.isEmpty()) {
+        // 유저 ID로 리뷰 목록 조회
+        Page<Review> reviewsByUserId = reviewRepository.findAllByUserId(userId, pageable);
+
+        // 리뷰가 없는 경우 예외처리
+        if (reviewsByUserId.isEmpty()) {
             throw new CustomException(CustomExceptionCode.REVIEW_NOT_FOUND);
         }
 
-        Page<ReviewInternalResponse> internalResponsePage = ReviewMapper.toResponsePage(reviewPage);
-        return internalResponsePage;
+        return ReviewMapper.toReviewResponsePage(reviewsByUserId);
     }
 
+    // [리뷰 수정]
     @Override
     @Transactional
-    public ReviewInternalResponse updateReview(UUID reviewId, UpdateReviewInternalRequest request) {
+    public ReviewInternalResponse modifyReview(UUID reviewId, UpdateReviewInternalRequest request) {
 
+        // 해당 리뷰가 없는 경우 예외처리
         Review review = reviewRepository.findById(reviewId)
             .orElseThrow(() -> new CustomException(CustomExceptionCode.REVIEW_NOT_FOUND));
 
+        // 리뷰 수정 및 별점 통계 증분 처리, 아이디 불일치시 예외처리
         Long beforeRating = review.getRating();
-        log.info("수정 전 별점 : {}", beforeRating);
 
         if (Objects.equals(review.getUserId(), request.userId())) {
             review.updateReview(request.content(), request.rating());
@@ -116,16 +130,18 @@ public class ReviewServiceImpl implements ReviewService {
             throw new CustomException(CustomExceptionCode.FORBIDDEN);
         }
 
-        return ReviewMapper.toResponse(review);
+        return ReviewMapper.toReviewResponse(review);
     }
 
+    // [리뷰 삭제]
     @Override
     @Transactional
-    public void deleteReviewByUser(UUID reviewId, Long userId) {
-
+    public void removeReviewByUser(UUID reviewId, Long userId) {
+        // 해당 리뷰가 없는 경우 예외처리
         Review review = reviewRepository.findById(reviewId)
             .orElseThrow(() -> new CustomException(CustomExceptionCode.REVIEW_NOT_FOUND));
 
+        // 아이디 일치 -> 리뷰 삭제 및 별점 증분처리, 불일치 -> 예외처리
         if (userId.equals(review.getUserId())) {
             review.setDeleted(userId, LocalDateTime.now());
             redisReviewCacheService.deleteRating(review.getLodgeId(), review.getRating());
@@ -134,38 +150,47 @@ public class ReviewServiceImpl implements ReviewService {
         }
     }
 
+    // [관리자 권한 리뷰 삭제]
     @Override
     @Transactional
-    public void deleteReviewByAdmin(UUID reviewId, Long userId) {
+    public void removeReviewByAdmin(UUID reviewId, Long userId) {
 
+        // 해당 리뷰가 없는 경우 예외처리
         Review review = reviewRepository.findById(reviewId)
             .orElseThrow(() -> new CustomException(CustomExceptionCode.REVIEW_NOT_FOUND));
 
+        // 리뷰 삭제
         review.setDeleted(userId, LocalDateTime.now());
 
+        // 별점 증분처리
         redisReviewCacheService.deleteRating(review.getLodgeId(), review.getRating());
     }
 
+    // [별점 통계]
     @Override
     @Transactional
-    public RedisResponse ratingStatistics(UUID lodgeId) {
+    public RedisResponse getRatingStatistics(UUID lodgeId) {
 
-        List<RatingInternalResponse> ratingInternalResponseList = reviewRepository.ratingStatistics(
+        // 별점 통계 데이터 조회
+        List<RatingInternalResponse> ratingStatistics = reviewRepository.findRatingStatistics(
             lodgeId);
 
+        // 평균 별점 계산 로직 : 전체 별점 합계 / 전체 리뷰 갯수
         Long totalScore = 0L;
-        for (int i = 0; i < ratingInternalResponseList.size(); i++) {
-            totalScore += (ratingInternalResponseList.get(i).count()
-                * ratingInternalResponseList.get(i)
-                .rating());
+        for (int i = 0; i < ratingStatistics.size(); i++) {
+            totalScore += (ratingStatistics.get(i).count() * ratingStatistics.get(i).rating());
         }
 
         Long totalReview = 0L;
-        for (int i = 0; i < ratingInternalResponseList.size(); i++) {
-            totalReview += ratingInternalResponseList.get(i).count();
+        for (int i = 0; i < ratingStatistics.size(); i++) {
+            totalReview += ratingStatistics.get(i).count();
         }
-        log.info("ratingStatistics : {}, totalScore : {}, totalReview : {}",
-            ratingInternalResponseList, totalScore, totalReview);
+
+        double averageRating = totalScore.doubleValue() / totalReview.doubleValue();
+        String averageRatingStr = String.format("%.2f", averageRating);
+
+        // 평균 별점
+        log.info("각 별점별 리뷰 갯수 : {}, 평균 별점 : {}", ratingStatistics, averageRatingStr);
 
 //        Map<Object, Object> ratingCount = redisReviewCacheService.getRatingCountFromRedis(
 //            lodgeId);
@@ -185,7 +210,7 @@ public class ReviewServiceImpl implements ReviewService {
 //        log.info("캐싱정보 가져오기 : getRatingCount{}, totalScore: {}, totalReview: {}", ratingCount,
 //            totalScore, totalReview);
 
-        return RedisMapper.toRedisResponse(ratingInternalResponseList, totalScore, totalReview);
+        return RedisMapper.toRedisReviewResponse(ratingStatistics, averageRatingStr);
     }
 
 }
