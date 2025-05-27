@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 public class RedisMapper {
+
     // Redis -> Redis Response
 //    public static RedisResponse toRedisResponse(Map<Object,Object> ratingCount, String totalScore,
 //        String totalReview) {
@@ -16,12 +17,10 @@ public class RedisMapper {
 //
 //        return redisResponse;
 //    }
-    public static RedisResponse toRedisResponse(List<?> ratingCount, Long totalScore,
-        Long totalReview) {
+    public static RedisResponse toRedisReviewResponse(List<?> ratingCount, String averageRating) {
         RedisResponse redisResponse = RedisResponse.builder()
             .ratingCount(ratingCount)
-            .totalScore(totalScore)
-            .totalReview(totalReview)
+            .averageRating(averageRating)
             .build();
 
         return redisResponse;
