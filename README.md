@@ -73,6 +73,4 @@
 ![ERD(수정)](https://github.com/user-attachments/assets/5673cc83-53a6-45bd-8e2c-f4242e95971a)
 
 # 4. 인프라 설계도
-<img width="735" alt="인프라설계도(실제)" src="https://github.com/user-attachments/assets/d6546297-4fd0-4b46-a266-a29f74eae95c" />
-
-# 5. 
+<img width="735" alt="인프라설계도(실제)" src="https://github.com/user-attachments/assets/d6546297-4fd0-4b46-a266-a29f74eae95c" /> 
