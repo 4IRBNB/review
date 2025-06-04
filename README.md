@@ -74,3 +74,6 @@
 
 # 4. 인프라 설계도
 <img width="735" alt="인프라설계도(실제)" src="https://github.com/user-attachments/assets/d6546297-4fd0-4b46-a266-a29f74eae95c" /> 
+
+# 5. 링크
+### 위키 링크 : https://github.com/4IRBNB/4IRBNB/wiki
